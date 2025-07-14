@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Pembelajaran PJOK Kelas 5</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; }
+        .btn { padding: 12px 28px; border-radius: 8px; font-weight: 700; transition: all 0.3s; transform-origin: center; }
+        .btn-primary { background-image: linear-gradient(to right, #3b82f6, #1d4ed8); color: white; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .btn-primary:disabled { background-image: none; background-color: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-secondary { background-color: #10b981; color: white; }
+        .btn-secondary:hover { background-color: #059669; transform: scale(1.05); }
+        .btn-danger { background-color: #ef4444; color: white; }
+        .btn-danger:hover { background-color: #dc2626; transform: scale(1.05); }
+        .btn-neutral { background-color: #6b7280; color: white; }
+        .btn-neutral:hover { background-color: #4b5563; transform: scale(1.05); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-6 max-w-4xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-800 to-cyan-600">E-PJOK KELAS 5</h1>
+            <p class="text-md text-gray-500 mt-1">Kurikulum Merdeka - SD Negeri 008 Samarinda Ulu</p>
+        </header>
+
+        <div id="welcome-view" class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-xl font-bold mb-5 text-center text-gray-700">✍️ Isi Data Diri & Pilih Materi</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="studentName" class="block text-sm font-medium text-gray-600 mb-1">Nama Lengkap Siswa:</label>
+                    <input type="text" id="studentName" placeholder="Ketik nama lengkap..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="studentClass" class="block text-sm font-medium text-gray-600 mb-1">Pilih Kelas:</label>
+                    <select id="studentClass" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                         <option value="">-- Pilih Kelas --</option>
+                         <option value="5A">Kelas 5A</option>
+                         <option value="5B">Kelas 5B</option>
+                         <option value="5C">Kelas 5C</option>
+                         <option value="5D">Kelas 5D</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="material" class="block text-sm font-medium text-gray-600 mb-1">Pilih Materi Evaluasi:</label>
+                    <select id="material" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+            </div>
+            <div class="mt-6 flex flex-col md:flex-row justify-center items-center gap-3">
+                <button id="start-quiz-btn" class="w-full md:w-auto btn btn-primary" disabled>▶️ Mulai Kuis</button>
+                <button id="view-online-history-btn" class="w-full md:w-auto btn btn-secondary">📊 Lihat Riwayat</button>
+            </div>
+        </div>
+
+        <div id="quiz-view" class="hidden bg-white p-6 rounded-2xl shadow-lg">
+            <h2 id="quiz-title" class="text-xl font-bold mb-5 text-center text-gray-700"></h2>
+            <div id="quiz-container" class="space-y-5"></div>
+            <div class="mt-6 text-center">
+                <button id="submit-quiz-btn" class="btn btn-primary">✅ Selesai & Lihat Nilai</button>
+            </div>
+        </div>
+
+        <div id="results-view" class="hidden bg-white p-6 rounded-2xl shadow-lg text-center">
+            <h2 class="text-2xl font-bold mb-2 text-gray-700">🎉 Hasil Kuis Selesai!</h2>
+            <p id="student-name-result" class="text-lg text-gray-600"></p>
+            <div class="my-5">
+                <p class="text-gray-500">Nilai Akhir:</p>
+                <p id="score-text" class="text-7xl font-extrabold text-blue-700"></p>
+                <p id="feedback-text" class="text-md font-medium mt-2 text-gray-600"></p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3 mt-6">
+                 <button id="back-to-home-btn" class="btn btn-neutral">🏠 Kembali ke Awal</button>
+                 <button id="download-certificate-btn" class="btn btn-secondary">📄 Unduh Sertifikat</button>
+            </div>
+        </div>
+        
+        <div id="online-history-view" class="hidden bg-white p-6 rounded-2xl shadow-lg">
+             <h2 class="text-xl font-bold mb-4 text-center">Riwayat Partisipasi Siswa</h2>
+             <div class="flex justify-center gap-3 mb-4">
+                 <button id="download-online-history-btn" class="btn btn-secondary">💾 Unduh (Excel)</button>
+                 <button id="back-to-welcome-btn" class="btn btn-neutral">⬅️ Kembali</button>
+             </div>
+             <div class="overflow-x-auto">
+                 <table class="min-w-full bg-white border text-sm">
+                     <thead class="bg-gray-800 text-white">
+                         <tr>
+                             <th class="py-2 px-3 border">No</th>
+                             <th class="py-2 px-3 border">Nama Siswa</th>
+                             <th class="py-2 px-3 border">Kelas</th>
+                             <th class="py-2 px-3 border">Skor</th>
+                             <th class="py-2 px-3 border">Benar</th>
+                             <th class="py-2 px-3 border">Tanggal</th>
+                         </tr>
+                     </thead>
+                     <tbody id="online-history-table-body"></tbody>
+                 </table>
+             </div>
+        </div>
+
+        <div id="certificate-container" class="absolute -left-full">
+            <div id="certificate-layout" class="p-8 w-[800px] h-[600px] flex flex-col justify-center items-center text-center border-8 border-blue-700 bg-white">
+                 <h1 class="text-5xl font-bold text-blue-900">SERTIFIKAT PENGHARGAAN</h1>
+                 <p class="mt-4 text-xl">Diberikan kepada:</p>
+                 <p id="cert-student-name" class="text-4xl font-semibold my-6 text-green-700"></p>
+                 <p class="text-xl">Telah menyelesaikan evaluasi materi pembelajaran PJOK dengan hasil yang sangat baik.</p>
+                 <p class="text-2xl font-bold mt-2">SKOR: <span id="cert-score"></span></p>
+                 <div class="mt-auto w-full flex justify-between items-end">
+                     <div class="text-left">
+                         <p>Samarinda, <span id="cert-date"></span></p>
+                         <p class="mt-16 pt-2 border-t-2 border-gray-700">Riko Trisusilo,S.Pd.Gr</p>
+                     </div>
+                     <div id="cert-qrcode"></div>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    // === ELEMEN HTML ===
+    const views = {
+        welcome: document.getElementById('welcome-view'),
+        quiz: document.getElementById('quiz-view'),
+        results: document.getElementById('results-view'),
+        onlineHistory: document.getElementById('online-history-view')
+    };
+    const studentNameInput = document.getElementById('studentName');
+    const studentClassSelect = document.getElementById('studentClass');
+    const materialSelect = document.getElementById('material');
+    const startQuizBtn = document.getElementById('start-quiz-btn');
+    const submitQuizBtn = document.getElementById('submit-quiz-btn');
+    const viewOnlineHistoryBtn = document.getElementById('view-online-history-btn');
+    const downloadOnlineHistoryBtn = document.getElementById('download-online-history-btn');
+    const backToWelcomeBtn = document.getElementById('back-to-welcome-btn');
+    const backToHomeBtn = document.getElementById('back-to-home-btn');
+    const downloadCertificateBtn = document.getElementById('download-certificate-btn');
+    
+    // === VARIABEL GLOBAL ===
+    const API_URL = 'http://localhost:3000';
+    let quizData = [];
+    let onlineHistoryData = [];
+    let currentStudentData = { name: '', className: '' };
+
+        // === KONTEN MATERI & SOAL (TOTAL 9 MATERI, 450 SOAL) ===
+        const allQuizzes = {
+            invasi: {
+                title: "Aktivitas Permainan Invasi",
+                questions: [
+                    // 50 Soal Permainan Invasi
+                    { q: "Berikut ini yang termasuk permainan invasi adalah...", o: ["Bulu tangkis", "Tenis meja", "Sepak bola", "Renang"], a: "Sepak bola" },
+  { q: "Tujuan utama dari permainan invasi adalah...", o: ["Melatih keseimbangan", "Menguasai wilayah lawan", "Menangkap bola", "Melompat tinggi"], a: "Menguasai wilayah lawan" },
+  { q: "Contoh permainan invasi yang dimainkan dengan tangan adalah...", o: ["Bola voli", "Basket", "Hoki", "Renang"], a: "Basket" },
+  { q: "Dalam permainan sepak bola, jumlah pemain dalam satu tim adalah...", o: ["7 orang", "9 orang", "11 orang", "5 orang"], a: "11 orang" },
+  { q: "Dalam permainan bola basket, bola dapat dipindahkan dengan cara...", o: ["Dilempar dan ditendang", "Dilempar dan digiring", "Dipukul dan ditendang", "Dibawa dan dilempar"], a: "Dilempar dan digiring" },
+  { q: "Fungsi utama penjaga gawang dalam permainan sepak bola adalah...", o: ["Menyerang lawan", "Mencetak gol", "Mengatur strategi", "Menjaga gawang agar tidak kebobolan"], a: "Menjaga gawang agar tidak kebobolan" },
+  { q: "Permainan bola tangan termasuk ke dalam kategori permainan...", o: ["Net", "Tradisional", "Invasi", "Senam"], a: "Invasi" },
+  { q: "Permainan yang bertujuan memasukkan bola ke gawang lawan adalah...", o: ["Bulu tangkis", "Basket", "Sepak bola", "Tenis"], a: "Sepak bola" },
+  { q: "Berikut ini yang bukan termasuk permainan invasi adalah...", o: ["Basket", "Futsal", "Renang", "Hoki"], a: "Renang" },
+  { q: "Alat utama yang digunakan dalam permainan hoki adalah...", o: ["Bola", "Net", "Tongkat", "Gawang"], a: "Tongkat" },
+  { q: "Gerakan menggiring bola dalam sepak bola disebut juga...", o: ["Shooting", "Passing", "Dribbling", "Heading"], a: "Dribbling" },
+  { q: "Futsal dimainkan di...", o: ["Lapangan rumput", "Lapangan tertutup", "Kolam", "Jalan raya"], a: "Lapangan tertutup" },
+  { q: "Olahraga yang mirip dengan sepak bola namun menggunakan tangan adalah...", o: ["Basket", "Bola tangan", "Voli", "Bulu tangkis"], a: "Bola tangan" },
+  { q: "Basket dimainkan dengan berapa orang dalam satu tim?", o: ["5", "6", "7", "11"], a: "5" },
+  { q: "Permainan yang menekankan kerja sama tim dan strategi menyerang adalah...", o: ["Sepak bola", "Senam", "Lari", "Lompat jauh"], a: "Sepak bola" },
+  { q: "Bola dalam permainan futsal berukuran...", o: ["Lebih besar dari bola basket", "Lebih kecil dari bola sepak", "Sama besar dengan bola voli", "Sebesar bola tenis"], a: "Lebih kecil dari bola sepak" },
+  { q: "Permainan invasi biasanya dilakukan di...", o: ["Kolam", "Lapangan", "Hutan", "Ruang kelas"], a: "Lapangan" },
+  { q: "Pemain bola basket mencetak poin dengan cara...", o: ["Melempar bola ke keranjang lawan", "Menendang bola ke gawang", "Melempar bola keluar", "Menjatuhkan lawan"], a: "Melempar bola ke keranjang lawan" },
+  { q: "Permainan bola tangan berasal dari...", o: ["Indonesia", "Amerika", "Eropa", "Jepang"], a: "Eropa" },
+  { q: "Dalam permainan sepak bola, istilah 'offside' berarti...", o: ["Bola keluar lapangan", "Pelanggaran", "Posisi pemain berada lebih dekat ke gawang lawan tanpa pemain bertahan", "Tendangan penalti"], a: "Posisi pemain berada lebih dekat ke gawang lawan tanpa pemain bertahan" },
+  { q: "Bola basket biasanya dimainkan di...", o: ["Lapangan rumput", "Kolam renang", "Lapangan keras", "Lantai kayu"], a: "Lapangan keras" },
+  { q: "Teknik dasar dalam bola basket adalah...", o: ["Mengayun tongkat", "Memukul bola", "Menendang bola", "Menggiring bola"], a: "Menggiring bola" },
+  { q: "Dalam sepak bola, pemain yang bertugas menyerang disebut...", o: ["Penjaga gawang", "Bek", "Gelandang", "Penyerang"], a: "Penyerang" },
+  { q: "Jumlah babak dalam pertandingan futsal adalah...", o: ["1", "2", "3", "4"], a: "2" },
+  { q: "Dalam permainan bola tangan, jumlah pemain setiap tim adalah...", o: ["5", "6", "7", "11"], a: "7" },
+  { q: "Permainan yang banyak dilakukan di dalam ruangan adalah...", o: ["Futsal", "Sepak bola", "Hoki lapangan", "Rugby"], a: "Futsal" },
+  { q: "Permainan rugby berasal dari...", o: ["Indonesia", "Inggris", "Jepang", "Brasil"], a: "Inggris" },
+  { q: "Dalam permainan bola basket, operan disebut juga...", o: ["Dribbling", "Shooting", "Passing", "Rebound"], a: "Passing" },
+  { q: "Posisi pemain bertahan dalam bola basket disebut...", o: ["Center", "Guard", "Forward", "Defender"], a: "Guard" },
+  { q: "Permainan yang dimainkan dengan bola kecil dan tongkat di lapangan disebut...", o: ["Rugby", "Hoki", "Futsal", "Basket"], a: "Hoki" },
+  { q: "Permainan sepak bola berasal dari...", o: ["Jepang", "Amerika", "Inggris", "Australia"], a: "Inggris" },
+  { q: "Berikut ini permainan invasi yang dimainkan dengan tangan...", o: ["Sepak bola", "Basket", "Rugby", "Polo air"], a: "Basket" },
+  { q: "Jumlah pemain futsal dalam satu tim adalah...", o: ["5", "6", "7", "11"], a: "5" },
+  { q: "Teknik menendang bola ke teman disebut...", o: ["Dribbling", "Passing", "Shooting", "Heading"], a: "Passing" },
+  { q: "Teknik memasukkan bola ke gawang disebut...", o: ["Shooting", "Heading", "Dribbling", "Passing"], a: "Shooting" },
+  { q: "Permainan bola basket ditemukan oleh...", o: ["Michael Jordan", "James Naismith", "Ronaldo", "Lionel Messi"], a: "James Naismith" },
+  { q: "Wasit dalam permainan bola basket berjumlah...", o: ["1", "2", "3", "4"], a: "2" },
+  { q: "Bentuk lapangan bola basket adalah...", o: ["Persegi", "Segitiga", "Persegi panjang", "Lingkaran"], a: "Persegi panjang" },
+  { q: "Dalam sepak bola, tendangan sudut dilakukan jika bola keluar oleh...", o: ["Pemain lawan", "Kiper", "Penyerang", "Pemain belakang"], a: "Pemain belakang" },
+  { q: "Lama permainan futsal adalah...", o: ["2 x 15 menit", "2 x 25 menit", "2 x 20 menit", "2 x 30 menit"], a: "2 x 20 menit" },
+  { q: "Permainan bola tangan sering dimainkan di negara...", o: ["Afrika", "Amerika", "Eropa", "Australia"], a: "Eropa" },
+  { q: "Permainan invasi sering menekankan pada kerja sama dan...", o: ["Kekuatan", "Kecepatan", "Strategi", "Teknik lompat"], a: "Strategi" },
+  { q: "Jumlah wasit dalam pertandingan sepak bola adalah...", o: ["1", "2", "3", "4"], a: "3" },
+  { q: "Dalam basket, tembakan jarak jauh disebut...", o: ["Lay-up", "Slam dunk", "Free throw", "Three point"], a: "Three point" },
+  { q: "Dalam futsal, pelanggaran ringan disebut...", o: ["Offside", "Foul", "Out", "Dribble"], a: "Foul" },
+  { q: "Rugby adalah permainan yang menggabungkan unsur...", o: ["Renang dan pukulan", "Lari dan gulat", "Dribbling dan pukulan", "Berlari dan mengoper bola"], a: "Berlari dan mengoper bola" },
+  { q: "Dalam bola basket, teknik menembak bola ke ring disebut...", o: ["Dribbling", "Passing", "Shooting", "Blocking"], a: "Shooting" },
+  { q: "Tugas pemain bertahan dalam futsal adalah...", o: ["Menyerang", "Menggiring bola", "Menjaga gawang", "Menghalangi lawan mencetak gol"], a: "Menghalangi lawan mencetak gol" },
+  { q: "Sepak bola mini dikenal juga dengan istilah...", o: ["Mini soccer", "Tiny football", "Small game", "Ball kids"], a: "Mini soccer" },
+  { q: "Permainan bola tangan bisa disebut juga dengan istilah...", o: ["Handball", "Throwball", "Touchball", "Grabball"], a: "Handball" },
+  { q: "Pertandingan bola basket dimulai dengan...", o: ["Tendangan pertama", "Lemparan ke dalam", "Jump ball", "Dribbling bebas"], a: "Jump ball" },
+  { q: "Jumlah kuarter dalam pertandingan basket adalah...", o: ["2", "3", "4", "5"], a: "4" },
+  { q: "Dalam sepak bola, wasit dibantu oleh...", o: ["Penonton", "Pelatih", "Asisten wasit", "Kiper"], a: "Asisten wasit" },
+  { q: "Dalam futsal, waktu istirahat antarbabak adalah...", o: ["2 menit", "5 menit", "10 menit", "15 menit"], a: "10 menit" },
+  { q: "Permainan basket bisa dimainkan di...", o: ["Air", "Lapangan berumput", "Lapangan keras", "Pasir"], a: "Lapangan keras" },
+  { q: "Sepak bola adalah olahraga yang populer di...", o: ["Asia", "Eropa", "Afrika", "Seluruh dunia"], a: "Seluruh dunia" },
+  { q: "Tendangan bebas diberikan jika terjadi...", o: ["Gol", "Offside", "Pelanggaran", "Throw in"], a: "Pelanggaran" },
+  { q: "Permainan bola tangan mirip dengan gabungan dari...", o: ["Basket dan voli", "Futsal dan rugby", "Basket dan sepak bola", "Voli dan tenis"], a: "Basket dan sepak bola" },
+  { q: "Permainan invasi disebut juga sebagai permainan...", o: ["Berseni", "Beregu", "Bergerak", "Penyerangan"], a: "Penyerangan" },
+  { q: "Dalam basket, bola tidak boleh dibawa dengan...", o: ["Berjalan", "Dribbling", "Operan", "Memantul"], a: "Berjalan" }
+
+      // ... (Soal 18-50 untuk Invasi)
+                ]
+            },
+            net: {
+                title: "Aktivitas Permainan Net",
+                questions: [
+                    // 50 Soal Permainan Net
+                       { q: "Olahraga yang menggunakan net sebagai pemisah area permainan adalah...", o: ["Sepak bola", "Bulu tangkis", "Lari marathon", "Senam lantai"], a: "Bulu tangkis" },
+  { q: "Permainan bola voli dimainkan oleh ... pemain tiap regu.", o: ["4", "5", "6", "7"], a: "6" },
+  { q: "Dalam tenis meja, alat pemukul disebut...", o: ["Raket", "Bet", "Stick", "Tongkat"], a: "Bet" },
+  { q: "Servis pertama pada permainan bulu tangkis dilakukan dari sisi...", o: ["Kiri lapangan", "Kanan lapangan", "Tengah lapangan", "Belakang lapangan"], a: "Kanan lapangan" },
+  { q: "Tujuan dasar permainan net adalah...", o: ["Mencetak gol ke gawang", "Memukul bola agar jatuh di area lawan", "Menggiring bola melewati lawan", "Mengangkat beban"], a: "Memukul bola agar jatuh di area lawan" },
+  { q: "Nama lain bulu tangkis dalam bahasa Inggris adalah...", o: ["Ping‑pong", "Badminton", "Volleyball", "Tennis"], a: "Badminton" },
+  { q: "Pencipta olahraga bola voli adalah...", o: ["James Naismith", "William G. Morgan", "Thomas Cup", "Walter Wingfield"], a: "William G. Morgan" },
+  { q: "Jumlah set kemenangan standar pada pertandingan tenis wanita adalah...", o: ["Satu set", "Dua set", "Tiga set", "Empat set"], a: "Dua set" },
+  { q: "Pada permainan bulu tangkis, satu game dimenangkan saat pemain lebih dulu mencapai...", o: ["11 poin", "15 poin", "21 poin", "25 poin"], a: "21 poin" },
+  { q: "Smash adalah pukulan keras menukik dalam olahraga...", o: ["Tenis meja", "Bulu tangkis", "Voli", "Semua benar"], a: "Semua benar" },
+  { q: "Lapangan tenis meja berbentuk...", o: ["Lingkaran", "Persegi panjang", "Segitiga", "Oktagon"], a: "Persegi panjang" },
+  { q: "Servis atas (overhand) umum dilakukan dalam permainan...", o: ["Sepak takraw", "Tenis meja", "Bola voli", "Bulu tangkis"], a: "Bola voli" },
+  { q: "Dalam bulu tangkis, kok terbuat dari...", o: ["Karet", "Bulu angsa dan gabus", "Plastik keras", "Kayu"], a: "Bulu angsa dan gabus" },
+  { q: "Dalam tenis, bola dipukul melewati net menggunakan...", o: ["Bet", "Raket", "Kaki", "Tangan"], a: "Raket" },
+  { q: "Sepak takraw memadukan teknik sepak bola dan...", o: ["Bola voli", "Bola baskets", "Bulu tangkis", "Futsal"], a: "Bola voli" },
+  { q: "Pukulan pelan tepat di dekat net pada bulu tangkis disebut...", o: ["Lob", "Dropshot", "Drive", "Clear"], a: "Dropshot" },
+  { q: "Blok dalam bola voli bertujuan untuk...", o: ["Menghentikan smash lawan", "Memulai rally", "Memberi umpan", "Mengganti bola"], a: "Menghentikan smash lawan" },
+  { q: "Dalam tenis meja, satu game dimenangkan pada skor...", o: ["9 poin", "11 poin", "15 poin", "21 poin"], a: "11 poin" },
+  { q: "Fault servis pada tenis terjadi bila...", o: ["Bola mengenai net dan keluar", "Bola langsung masuk", "Bola dipantulkan satu kali", "Bola melewati lawan"], a: "Bola mengenai net dan keluar" },
+  { q: "Pemain bulu tangkis ganda terdiri dari...", o: ["1 vs 1", "2 vs 1", "2 vs 2", "3 vs 3"], a: "2 vs 2" },
+  { q: "Gerakan passing bawah (forearm pass) populer dalam...", o: ["Tenis meja", "Bola voli", "Bulu tangkis", "Tenis"], a: "Bola voli" },
+  { q: "Dalam sepak takraw, pemain tidak boleh menyentuh bola dengan...", o: ["Kepala", "Kaki", "Tangan", "Lutut"], a: "Tangan" },
+  { q: "Let serve dalam tenis meja berarti...", o: ["Servis ulang karena bola mengenai net", "Servis masuk sempurna", "Poin langsung", "Kesalahan ganda"], a: "Servis ulang karena bola mengenai net" },
+  { q: "Ukuran net bulu tangkis lebih ... dibanding net bola voli.", o: ["Tinggi", "Pendek", "Sama", "Lebar"], a: "Pendek" },
+  { q: "Posisi tosser (setter) terdapat pada olahraga...", o: ["Bulu tangkis", "Bola voli", "Tenis", "Sepak takraw"], a: "Bola voli" },
+  { q: "Permainan tenis lapangan berasal dari negara...", o: ["Prancis", "Amerika", "Inggris", "Australia"], a: "Inggris" },
+  { q: "Smash servis dilarang dalam...", o: ["Bola voli", "Sepak takraw", "Tenis meja", "Bulu tangkis"], a: "Sepak takraw" },
+  { q: "Nama internasional organisasi bola voli adalah...", o: ["FIFA", "BWF", "FIVB", "ITF"], a: "FIVB" },
+  { q: "Teknik chop merupakan pukulan backspin dalam...", o: ["Tenis meja", "Bulu tangkis", "Voli", "Sepak takraw"], a: "Tenis meja" },
+  { q: "Dalam bulu tangkis, servis backhand biasanya digunakan untuk...", o: ["Servis panjang", "Servis pendek", "Smash", "Drive"], a: "Servis pendek" },
+  { q: "Pemain depan sepak takraw disebut...", o: ["Tekong", "Apit", "Striker", "Tolok"], a: "Apit" },
+  { q: "Blocking satu tangan sering dijumpai pada cabang...", o: ["Voli pantai", "Tenis", "Ping‑pong", "Takraw"], a: "Voli pantai" },
+  { q: "Pertandingan bulu tangkis resmi menggunakan sistem ... game.", o: ["Best of 1", "Best of 2", "Best of 3", "Best of 5"], a: "Best of 3" },
+  { q: "Asosiasi bulu tangkis dunia disingkat...", o: ["FIBA", "BWF", "ITTF", "FIVB"], a: "BWF" },
+  { q: "Gerakan spike dalam bola voli dilakukan dengan...", o: ["Kaki", "Tangan", "Kepala", "Lutut"], a: "Tangan" },
+  { q: "Ukuran bola tenis meja terbuat dari bahan...", o: ["Kayu", "Celluloid atau plastik ringan", "Karet", "Kulit sintetis"], a: "Celluloid atau plastik ringan" },
+  { q: "Dalam bulu tangkis, skor 20‑20 disebut...", o: ["Deuce", "Set point", "Match point", "Rubber"], a: "Deuce" },
+  { q: "Sistem rally point 25 digunakan dalam ... pada tingkat internasional.", o: ["Bola voli", "Bulu tangkis", "Tenis meja", "Takraw"], a: "Bola voli" },
+  { q: "Push adalah teknik mendorong bola datar di ...", o: ["Tenis meja", "Bulu tangkis", "Voli", "Tenis"], a: "Tenis meja" },
+  { q: "Smasher ulung dalam bola voli sering disebut...", o: ["Spiker", "Libero", "Setter", "Blocker"], a: "Spiker" },
+  { q: "Foot fault terjadi ketika pemain tenis...", o: ["Menginjak garis baseline saat servis", "Memukul bola keluar", "Menyentuh net", "Melewati raket"], a: "Menginjak garis baseline saat servis" },
+  { q: "Ukuran tinggi net sepak takraw adalah sekitar...", o: ["1,2 m", "1,42 m", "1,52 m", "1,6 m"], a: "1,52 m" },
+  { q: "Gerakan overhead clear terdapat pada...", o: ["Bulu tangkis", "Tenis meja", "Voli", "Takraw"], a: "Bulu tangkis" },
+  { q: "Pencetak angka dalam bola voli disebut ... point.", o: ["Break", "Rally", "Ace", "Game"], a: "Ace" },
+  { q: "Dalam tenis meja, pegangan shakehand mirip dengan...", o: ["Memegang palu", "Bersalaman", "Menulis pensil", "Menyapu"], a: "Bersalaman" },
+  { q: "Service let pada bulu tangkis terjadi jika kok...", o: ["Mengenai net lalu masuk", "Keluar lapangan", "Tidak terangkat", "Dipukul dua kali"], a: "Mengenai net lalu masuk" },
+  { q: "Pemain yang dapat bebas keluar‑masuk mengganti pemain belakang di voli disebut...", o: ["Captain", "Libero", "Spiker", "Server"], a: "Libero" },
+  { q: "Permainan tenis meja berasal dari...", o: ["India", "Tiongkok", "Inggris", "Spanyol"], a: "Inggris" },
+  { q: "Dalam sepak takraw, servis pertama dilakukan oleh pemain...", o: ["Apit", "Tekong", "Libero", "Penjaga"], a: "Tekong" },
+  { q: "Dropshot dalam bulu tangkis bertujuan membuat lawan...", o: ["Mundur ke belakang", "Maju ke net", "Melompat tinggi", "Bergerak samping"], a: "Maju ke net" },
+  { q: "Round‑the‑head smash adalah istilah di...", o: ["Bulu tangkis", "Tenis meja", "Takraw", "Tenis"], a: "Bulu tangkis" },
+  { q: "Jumlah pemain inti sepak takraw dalam satu regu adalah...", o: ["2", "3", "4", "6"], a: "3" },
+  { q: "Dalam tenis, tie‑break dimainkan bila skor set mencapai...", o: ["5‑5", "6‑6", "7‑7", "8‑8"], a: "6‑6" },
+  { q: "Gerakan lob tinggi jauh ke belakang lawan populer di...", o: ["Tenis meja", "Bulu tangkis", "Voli", "Takraw"], a: "Bulu tangkis" },
+  { q: "Peran setter di bola voli hampir sama dengan ... di sepak bola.", o: ["Kiper", "Gelandang pengatur", "Penyerang", "Bek"], a: "Gelandang pengatur" },
+  { q: "Dalam tenis meja, bola harus memantul ... kali di meja lawan setelah servis.", o: ["0", "1", "2", "3"], a: "1" },
+  { q: "Sistem rally point 21 digunakan pada kompetisi internasional ...", o: ["Bulu tangkis", "Tenis", "Takraw", "Voli pantai"], a: "Bulu tangkis" },
+  { q: "Gerakan block di dekat net untuk menahan kok dilakukan pada cabang...", o: ["Bulu tangkis", "Voli", "Tenis", "Takraw"], a: "Takraw" },
+  { q: "ITTF adalah federasi internasional untuk olahraga...", o: ["Tenis", "Voli", "Tenis meja", "Bulu tangkis"], a: "Tenis meja" },
+  { q: "Rally terpanjang biasanya terjadi pada cabang...", o: ["Voli", "Bulu tangkis ganda", "Tenis meja", "Takraw"], a: "Bulu tangkis ganda" },
+  { q: "Gerakan drive lambung mendatar populer di...", o: ["Bulu tangkis", "Tenis", "Takraw", "Voli"], a: "Bulu tangkis" },
+  { q: "Dalam bola voli, rotasi posisi pemain terjadi searah...", o: ["Jarum jam", "Lawan jarum jam", "Atas‑bawah", "Acak"], a: "Jarum jam" },
+  { q: "Pemain tenis meja tidak boleh ... meja saat memukul bola.", o: ["Menyentuh", "Melihat", "Mendekati", "Memutar"], a: "Menyentuh" },
+  { q: "Raket bulu tangkis modern umumnya terbuat dari bahan...", o: ["Bambu", "Kayu solid", "Grafit atau karbon", "Besi"], a: "Grafit atau karbon" },
+  { q: "Ukuran bola voli resmi adalah nomor...", o: ["3", "4", "5", "7"], a: "5" },
+  { q: "Dalam tenis, poin love berarti...", o: ["0", "1", "2", "3"], a: "0" },
+  { q: "Teknik dasar passing atas (set‑up) pada bola voli menggunakan bagian...", o: ["Ujung jari", "Punggung tangan", "Lengan bawah", "Telapak penuh"], a: "Ujung jari" },
+  { q: "Smasher yang memukul kok dari belakang kepala disebut ... smash.", o: ["Backhand", "Forehand", "Overhead", "Underhand"], a: "Overhead" },
+  { q: "Sepak takraw dikenal luas di kawasan...", o: ["Eropa", "Asia Tenggara", "Amerika", "Afrika"], a: "Asia Tenggara" },
+  { q: "Turnamen bulu tangkis beregu pria dunia bernama...", o: ["Uber Cup", "Thomas Cup", "Sudirman Cup", "All England"], a: "Thomas Cup" },
+  { q: "Dalam tenis meja, perubahan servis terjadi setiap ... angka.", o: ["1", "2", "5", "7"], a: "2" },
+  { q: "Setiap reli pada sistem rally point selalu menghasilkan...", o: ["Pergantian lapangan", "Poin", "Timeout", "Fault"], a: "Poin" },
+
+
+                     
+      // ... (Soal 11-50 untuk Net)
+                ]
+            },
+            lapangan: {
+                title: "Aktivitas Permainan Lapangan",
+                questions: [
+                    // 50 Soal Permainan Lapangan
+                      { q: "Permainan kasti menggunakan bola berukuran...", o: ["Besar", "Sedang", "Kecil", "Sangat besar"], a: "Kecil" },
+  { q: "Jumlah pemain dalam satu regu permainan kasti adalah...", o: ["5", "9", "12", "15"], a: "12" },
+  { q: "Alat pemukul dalam permainan kasti disebut...", o: ["Tongkat", "Bet", "Raket", "Stik"], a: "Bet" },
+  { q: "Lapangan kasti berbentuk...", o: ["Lingkaran", "Persegi panjang", "Segitiga", "Oval"], a: "Persegi panjang" },
+  { q: "Posisi pemukul dalam kasti berada di...", o: ["Lapangan luar", "Lapangan dalam", "Tempat servis", "Area bebas"], a: "Lapangan dalam" },
+  { q: "Tujuan utama permainan kasti adalah...", o: ["Memukul lawan", "Menjaga bola", "Mengumpulkan angka", "Menguasai bola"], a: "Mengumpulkan angka" },
+  { q: "Permainan kasti termasuk dalam jenis permainan...", o: ["Air", "Lempar tangkap", "Net", "Individu"], a: "Lempar tangkap" },
+  { q: "Dalam permainan kasti, bola yang dilempar harus...", o: ["Mengenai kaki", "Mengenai kepala", "Kena badan", "Menyentuh tanah"], a: "Kena badan" },
+  { q: "Permainan rounders hampir mirip dengan...", o: ["Sepak bola", "Kasti", "Basket", "Voli"], a: "Kasti" },
+  { q: "Permainan rounders berasal dari negara...", o: ["Indonesia", "Amerika", "Inggris", "Jepang"], a: "Inggris" },
+
+  { q: "Jumlah base dalam permainan rounders adalah...", o: ["2", "3", "4", "5"], a: "4" },
+  { q: "Bentuk lapangan rounders adalah...", o: ["Segitiga", "Segi empat", "Segi lima", "Lingkaran"], a: "Segi lima" },
+  { q: "Dalam rounders, pemukul dinyatakan out jika...", o: ["Berhasil memukul bola", "Lari cepat", "Tersentuh bola", "Tidak memukul bola"], a: "Tersentuh bola" },
+  { q: "Base dalam rounders berfungsi untuk...", o: ["Tempat istirahat", "Menendang bola", "Melempar bola", "Tempat berlari dan berhenti"], a: "Tempat berlari dan berhenti" },
+  { q: "Salah satu teknik dasar dalam kasti dan rounders adalah...", o: ["Dribble", "Lempar tangkap", "Heading", "Smash"], a: "Lempar tangkap" },
+  { q: "Dalam permainan rounders, pemain akan mendapat nilai penuh jika berhasil...", o: ["Memukul bola", "Berjalan", "Mengelilingi base", "Menangkap bola"], a: "Mengelilingi base" },
+  { q: "Jumlah pemain dalam satu regu rounders adalah...", o: ["6", "9", "12", "15"], a: "9" },
+  { q: "Gerakan melempar bola bisa dilakukan secara...", o: ["Lambat dan keras", "Cepat dan lemah", "Atas dan bawah", "Kanan dan kiri"], a: "Atas dan bawah" },
+  { q: "Lapangan kasti biasanya diberi garis untuk...", o: ["Dekorasi", "Memperindah", "Pembatas dan penanda area", "Menentukan warna"], a: "Pembatas dan penanda area" },
+  { q: "Peralatan utama dalam permainan lapangan seperti kasti adalah...", o: ["Bola dan bet", "Raket dan jaring", "Tiang dan net", "Bola besar dan ring"], a: "Bola dan bet" },
+
+  { q: "Permainan lapangan biasanya dilakukan secara...", o: ["Individu", "Beregu", "Solo", "Sendiri"], a: "Beregu" },
+  { q: "Bentuk kerja sama dalam permainan lapangan disebut...", o: ["Kompetisi", "Kolaborasi", "Gotong royong", "Strategi"], a: "Kolaborasi" },
+  { q: "Jika pemain terkena bola langsung saat lari di kasti, maka...", o: ["Dapat poin", "Out", "Maju lagi", "Ganti tempat"], a: "Out" },
+  { q: "Pelempar bola dalam permainan kasti disebut...", o: ["Pemukul", "Penangkap", "Pelambung", "Penjaga"], a: "Pelambung" },
+  { q: "Permainan kasti cocok dimainkan di lapangan yang...", o: ["Kecil", "Sempit", "Luas", "Berlumpur"], a: "Luas" },
+  { q: "Kegiatan memukul bola memerlukan koordinasi antara mata dan...", o: ["Kaki", "Telinga", "Tangan", "Bahu"], a: "Tangan" },
+  { q: "Dalam permainan kasti, jika bola melambung tinggi, sebaiknya ditangkap dengan...", o: ["Dagu", "Tangan terbuka", "Kaki", "Pinggang"], a: "Tangan terbuka" },
+  { q: "Pemain yang memukul bola disebut...", o: ["Pelambung", "Pelempar", "Pemukul", "Penjaga"], a: "Pemukul" },
+  { q: "Gerakan melempar bola disebut juga dengan...", o: ["Catch", "Throw", "Run", "Hit"], a: "Throw" },
+  { q: "Gerakan menangkap bola disebut juga dengan...", o: ["Hit", "Run", "Catch", "Jump"], a: "Catch" },
+
+  { q: "Gerakan memukul bola disebut juga dengan...", o: ["Catch", "Run", "Throw", "Hit"], a: "Hit" },
+  { q: "Kasti dimainkan oleh dua regu yaitu...", o: ["Penonton dan wasit", "Pemukul dan penjaga", "Guru dan siswa", "Pelatih dan pemain"], a: "Pemukul dan penjaga" },
+  { q: "Bola yang tidak mengenai sasaran disebut bola...", o: ["Mati", "Hidup", "Liar", "Melambung"], a: "Liar" },
+  { q: "Wasit dalam permainan lapangan bertugas untuk...", o: ["Memukul bola", "Menjaga lapangan", "Memimpin permainan", "Mengganti pemain"], a: "Memimpin permainan" },
+  { q: "Posisi tangan saat menangkap bola sebaiknya dalam keadaan...", o: ["Tertutup", "Terbuka", "Ditekuk", "Kaku"], a: "Terbuka" },
+  { q: "Bola yang dilempar terlalu tinggi dinamakan bola...", o: ["Tinggi", "Mati", "Hidup", "Melambung"], a: "Melambung" },
+  { q: "Dalam permainan lapangan diperlukan sikap...", o: ["Egois", "Kerja sama", "Individu", "Malas"], a: "Kerja sama" },
+  { q: "Salah satu manfaat permainan lapangan adalah...", o: ["Membuat lelah", "Membuat marah", "Melatih koordinasi", "Menambah berat badan"], a: "Melatih koordinasi" },
+  { q: "Jika bola kasti keluar dari garis lapangan, maka disebut bola...", o: ["Bebas", "Masuk", "Keluar", "Liar"], a: "Keluar" },
+  { q: "Permainan lapangan biasanya dilakukan di...", o: ["Ruang kelas", "Lapangan terbuka", "Lorong sekolah", "Halaman rumah"], a: "Lapangan terbuka" },
+
+  { q: "Lemparan bola dengan posisi rendah disebut lemparan...", o: ["Atas", "Samping", "Bawah", "Tengah"], a: "Bawah" },
+  { q: "Gerakan menangkap bola yang datang dari atas disebut tangkapan...", o: ["Bawah", "Samping", "Melambung", "Depan"], a: "Melambung" },
+  { q: "Permainan kasti dimainkan secara bergantian antara regu pemukul dan regu...", o: ["Penonton", "Penangkap", "Penjaga", "Pelatih"], a: "Penjaga" },
+  { q: "Waktu permainan kasti biasanya dibagi menjadi...", o: ["3 babak", "2 babak", "4 babak", "5 babak"], a: "2 babak" },
+  { q: "Pemain yang menjaga base dalam rounders disebut...", o: ["Penjaga base", "Penangkap", "Pelambung", "Wasit"], a: "Penjaga base" },
+  { q: "Setiap pemain memiliki giliran dalam permainan kasti untuk...", o: ["Menonton", "Menendang", "Memukul bola", "Mencatat nilai"], a: "Memukul bola" },
+  { q: "Teknik dasar permainan lapangan meliputi melempar, menangkap, dan...", o: ["Memanjat", "Memukul", "Menari", "Menendang"], a: "Memukul" },
+  { q: "Jika bola berhasil ditangkap oleh penjaga tanpa jatuh, maka pemukul akan...", o: ["Out", "Mendapat poin", "Lari", "Maju base"], a: "Out" },
+  { q: "Pemain yang berlari ke base harus...", o: ["Berjalan santai", "Berlari cepat", "Berputar-putar", "Duduk"], a: "Berlari cepat" },
+  { q: "Alat yang digunakan untuk memukul bola disebut...", o: ["Tongkat", "Papan", "Bet", "Raket"], a: "Bet" },
+
+  { q: "Bentuk koordinasi dalam permainan lapangan adalah antara...", o: ["Mata dan kaki", "Telinga dan mulut", "Mata dan tangan", "Pinggang dan kaki"], a: "Mata dan tangan" },
+  { q: "Teknik dasar dalam permainan lapangan perlu dilatih secara...", o: ["Jarang", "Santai", "Teratur", "Sekali-sekali"], a: "Teratur" },
+  { q: "Permainan lapangan dapat meningkatkan keterampilan...", o: ["Menulis", "Bekerja di kantor", "Motorik kasar", "Membaca"], a: "Motorik kasar" },
+  { q: "Latihan melempar bola ke sasaran bertujuan untuk melatih...", o: ["Lari cepat", "Keseimbangan", "Ketepatan lemparan", "Pukulan"], a: "Ketepatan lemparan" },
+  { q: "Permainan lapangan membantu melatih rasa...", o: ["Malu", "Tanggung jawab", "Takut", "Malas"], a: "Tanggung jawab" },
+  { q: "Permainan lapangan sangat baik untuk melatih anak dalam hal...", o: ["Kompetisi tidak sehat", "Kerja sama dan sportivitas", "Kecurangan", "Menang sendiri"], a: "Kerja sama dan sportivitas" },
+  { q: "Contoh permainan lapangan selain kasti adalah...", o: ["Catur", "Rounders", "Bulu tangkis", "Renang"], a: "Rounders" },
+  { q: "Sikap sportif dalam permainan ditunjukkan dengan cara...", o: ["Marah saat kalah", "Menerima kekalahan", "Menyalahkan wasit", "Tidak mau bermain"], a: "Menerima kekalahan" },
+  { q: "Bermain secara adil dan jujur dalam permainan disebut...", o: ["Keberuntungan", "Kemenangan", "Sportivitas", "Kecurangan"], a: "Sportivitas" },
+  { q: "Pemain cadangan dalam permainan lapangan bertugas untuk...", o: ["Bermain penuh", "Mengganti pemain utama", "Menonton saja", "Mencatat skor"], a: "Mengganti pemain utama" },
+
+
+      // ... (Soal 6-50 untuk Lapangan)
+                ]
+            },
+            beladiri: {
+                title: "Aktivitas Bela Diri Pencak Silat",
+                questions: [
+                    // 50 Soal Pencak Silat
+                    { q: "Pencak silat adalah seni bela diri yang berasal dari...", o: ["Jepang", "Korea", "Tiongkok", "Indonesia"], a: "Indonesia" },
+  { q: "Pencak silat mengajarkan nilai-nilai seperti...", o: ["Kekerasan", "Permusuhan", "Sportivitas dan kedisiplinan", "Kemalasan"], a: "Sportivitas dan kedisiplinan" },
+  { q: "Salah satu tujuan pencak silat adalah untuk...", o: ["Menyerang orang lain", "Bertahan dan melindungi diri", "Bermain-main", "Menjadi sombong"], a: "Bertahan dan melindungi diri" },
+  { q: "Gerakan dasar pencak silat yang dilakukan dengan kaki disebut...", o: ["Pukulan", "Tangkisan", "Tendangan", "Elakan"], a: "Tendangan" },
+  { q: "Gerakan menangkis serangan lawan disebut...", o: ["Tendangan", "Pukulan", "Tangkisan", "Sapuan"], a: "Tangkisan" },
+  { q: "Serangan dengan tangan dalam pencak silat disebut...", o: ["Tendangan", "Pukulan", "Elakan", "Kuncian"], a: "Pukulan" },
+  { q: "Sikap awal dalam pencak silat disebut sikap...", o: ["Kuda-kuda", "Melangkah", "Siap", "Berdiri biasa"], a: "Siap" },
+  { q: "Kuda-kuda adalah gerakan dasar untuk...", o: ["Menari", "Menendang bola", "Keseimbangan dan kekuatan", "Melompat jauh"], a: "Keseimbangan dan kekuatan" },
+  { q: "Gerakan menghindar dari serangan lawan disebut...", o: ["Elakan", "Serangan", "Lompatan", "Sapuan"], a: "Elakan" },
+  { q: "Sikap hormat dalam pencak silat menunjukkan sikap...", o: ["Sombong", "Rendah hati", "Benci", "Marah"], a: "Rendah hati" },
+
+  { q: "Gerakan yang dilakukan untuk menjatuhkan lawan disebut...", o: ["Kuncian", "Pukulan", "Tendangan", "Sapuan"], a: "Sapuan" },
+  { q: "Dalam pencak silat, kuda-kuda dapat digunakan untuk...", o: ["Menyerah", "Menyeimbangkan tubuh", "Lari", "Duduk"], a: "Menyeimbangkan tubuh" },
+  { q: "Pakaian khusus pencak silat disebut...", o: ["Seragam", "Baju bela diri", "Silat outfit", "Baju pencak silat"], a: "Baju pencak silat" },
+  { q: "Pencak silat diajarkan untuk membentuk pribadi yang...", o: ["Lemah", "Keras kepala", "Disiplin dan percaya diri", "Pemarah"], a: "Disiplin dan percaya diri" },
+  { q: "Organisasi pencak silat di Indonesia adalah...", o: ["PBSI", "PSSI", "IPSI", "PRSI"], a: "IPSI" },
+  { q: "Sikap kuda-kuda yang dilakukan dengan satu kaki di depan dan satu di belakang disebut...", o: ["Kuda-kuda depan", "Kuda-kuda silang", "Kuda-kuda belakang", "Kuda-kuda samping"], a: "Kuda-kuda depan" },
+  { q: "Gerakan yang dilakukan untuk mengecoh lawan disebut...", o: ["Tendangan", "Pukulan", "Tipuan", "Elakan"], a: "Tipuan" },
+  { q: "Pencak silat melatih kemampuan...", o: ["Menari", "Berbicara", "Motorik dan mental", "Bernyanyi"], a: "Motorik dan mental" },
+  { q: "Gerakan dasar yang dilakukan untuk melindungi tubuh dari pukulan lawan adalah...", o: ["Tangkisan", "Sapuan", "Kuncian", "Tendangan"], a: "Tangkisan" },
+  { q: "Salah satu teknik dasar dalam pencak silat selain tendangan adalah...", o: ["Dribbling", "Pukulan", "Servis", "Lemparan"], a: "Pukulan" },
+
+  { q: "Sikap badan yang benar saat melakukan kuda-kuda adalah...", o: ["Miring dan kaku", "Condong ke depan", "Tegak dan seimbang", "Membungkuk"], a: "Tegak dan seimbang" },
+  { q: "Pencak silat adalah warisan budaya yang diakui oleh...", o: ["UNESCO", "FIFA", "FIBA", "WHO"], a: "UNESCO" },
+  { q: "Manfaat pencak silat bagi siswa adalah untuk melatih...", o: ["Kehidupan malam", "Fisik dan mental", "Belanja online", "Kekerasan"], a: "Fisik dan mental" },
+  { q: "Salah satu contoh sikap dalam pencak silat yang perlu diteladani adalah...", o: ["Egois", "Tanggung jawab", "Malas", "Pemarah"], a: "Tanggung jawab" },
+  { q: "Pencak silat bisa dilakukan secara individu maupun...", o: ["Kelompok", "Duduk", "Santai", "Tiduran"], a: "Kelompok" },
+  { q: "Gerakan tangan untuk menangkis pukulan disebut...", o: ["Sapuan", "Pukulan", "Tangkisan", "Kuda-kuda"], a: "Tangkisan" },
+  { q: "Gerakan kaki untuk menyerang lawan dinamakan...", o: ["Lompatan", "Tangkisan", "Tendangan", "Jalan cepat"], a: "Tendangan" },
+  { q: "Salah satu nilai luhur dalam pencak silat adalah...", o: ["Kebohongan", "Kesombongan", "Kejahatan", "Kesopanan"], a: "Kesopanan" },
+  { q: "Latihan pencak silat dapat meningkatkan kebugaran dan...", o: ["Rasa malas", "Emosi negatif", "Kedisiplinan", "Ketidakteraturan"], a: "Kedisiplinan" },
+  { q: "Sebelum latihan pencak silat, sebaiknya melakukan...", o: ["Tidur", "Pemanasan", "Makan besar", "Menonton"], a: "Pemanasan" },
+
+  { q: "Dalam pencak silat, pukulan harus dilakukan dengan...", o: ["Kekuatan penuh dan sembarangan", "Sikap sembarangan", "Teknik dan pengendalian diri", "Mata tertutup"], a: "Teknik dan pengendalian diri" },
+  { q: "Gerakan elakan berguna untuk...", o: ["Menyerang", "Menghindar dari serangan", "Menyerah", "Berlari"], a: "Menghindar dari serangan" },
+  { q: "Salah satu contoh elakan dalam pencak silat adalah...", o: ["Melompat ke atas", "Melangkah ke samping", "Duduk diam", "Berputar"], a: "Melangkah ke samping" },
+  { q: "Pukulan yang diarahkan ke depan disebut pukulan...", o: ["Samping", "Depan", "Tegak", "Lintas"], a: "Depan" },
+  { q: "Sapuan dilakukan untuk...", o: ["Menjaga lawan", "Menjatuhkan lawan", "Menyapu lantai", "Menendang bola"], a: "Menjatuhkan lawan" },
+  { q: "Pukulan dalam pencak silat dilakukan dengan bagian tangan...", o: ["Telapak", "Punggung", "Kepalan", "Siku"], a: "Kepalan" },
+  { q: "Kuda-kuda silang dilakukan dengan posisi kaki yang...", o: ["Tertutup rapat", "Disilangkan", "Diluruskan", "Dibuka lebar"], a: "Disilangkan" },
+  { q: "Gerakan pencak silat dilakukan dengan...", o: ["Kasar dan keras", "Sembarangan", "Lembut dan teratur", "Cepat dan marah"], a: "Lembut dan teratur" },
+  { q: "Sikap siap dalam pencak silat bertujuan untuk...", o: ["Berdiri biasa", "Membuka serangan", "Bersiap menghadapi gerakan", "Melawan guru"], a: "Bersiap menghadapi gerakan" },
+  { q: "Kunci utama dalam pencak silat adalah keseimbangan dan...", o: ["Kebisingan", "Kekacauan", "Konsentrasi", "Kelupaan"], a: "Konsentrasi" },
+
+  { q: "Pencak silat dapat ditampilkan dalam bentuk seni yang disebut...", o: ["Lomba teknik", "Pertunjukan silat", "Tanding bebas", "Festival lagu"], a: "Pertunjukan silat" },
+  { q: "Gerakan yang dilakukan untuk mempertahankan diri dari tendangan lawan adalah...", o: ["Tangkisan", "Pukulan", "Lemparan", "Lompatan"], a: "Tangkisan" },
+  { q: "Gerakan dasar dalam pencak silat terdiri dari kuda-kuda, pukulan, tendangan, dan...", o: ["Melompat", "Tangkisan", "Makan", "Berlari"], a: "Tangkisan" },
+  { q: "Pakaian latihan pencak silat biasanya berwarna...", o: ["Putih", "Merah", "Biru", "Hitam"], a: "Hitam" },
+  { q: "Teknik serangan dengan kaki yang menyamping disebut...", o: ["Tendangan depan", "Tendangan belakang", "Tendangan sabit", "Tendangan lompat"], a: "Tendangan sabit" },
+  { q: "Sikap tangan yang benar saat memberi hormat dalam pencak silat adalah...", o: ["Tangan di belakang", "Tangan di kepala", "Tangan di depan dada", "Tangan terlipat"], a: "Tangan di depan dada" },
+  { q: "Pencak silat mengajarkan kita untuk menghindari...", o: ["Kebaikan", "Pertolongan", "Kekerasan yang tidak perlu", "Olahraga"], a: "Kekerasan yang tidak perlu" },
+  { q: "Ketika bertanding, pesilat harus menunjukkan sikap...", o: ["Benci", "Sombong", "Sportif", "Malas"], a: "Sportif" },
+  { q: "Tujuan utama dari latihan pencak silat adalah untuk meningkatkan kekuatan dan...", o: ["Emosi", "Kepercayaan diri", "Kesombongan", "Kekayaan"], a: "Kepercayaan diri" },
+  { q: "Salah satu aspek penting dalam pencak silat adalah menjaga...", o: ["Kemenangan", "Penampilan", "Keseimbangan tubuh", "Kemarahan"], a: "Keseimbangan tubuh" }
+
+      // ... (Soal 3-50 untuk Bela Diri)
+                ]
+            },
+            senam: {
+                title: "Aktivitas Gerak Dominan Senam",
+                questions: [
+                    // 50 Soal Senam
+                    { q: "Gerakan berguling ke depan di atas matras disebut...", o: ["Meroda", "Roll depan", "Kayang", "Lompat harimau"], a: "Roll depan" },
+  { q: "Gerakan berguling ke belakang disebut...", o: ["Kayang", "Roll depan", "Roll belakang", "Headstand"], a: "Roll belakang" },
+  { q: "Gerakan berdiri dengan kedua tangan sebagai tumpuan disebut...", o: ["Handstand", "Bridge", "Roll", "Split"], a: "Handstand" },
+  { q: "Gerakan melentingkan tubuh ke belakang hingga tangan menyentuh lantai disebut...", o: ["Roll depan", "Lompat harimau", "Kayang", "Split"], a: "Kayang" },
+  { q: "Senam lantai biasanya dilakukan di atas...", o: ["Rumput", "Karpet", "Matras", "Keramik"], a: "Matras" },
+  { q: "Tujuan dari melakukan senam adalah untuk...", o: ["Menghafal gerakan", "Melatih kekuatan dan kelenturan", "Meninggikan badan", "Meningkatkan berat badan"], a: "Melatih kekuatan dan kelenturan" },
+  { q: "Gerakan meloncat ke depan dan mendarat dengan kedua kaki disebut...", o: ["Roll", "Lompat jauh", "Lompat harimau", "Loncat kangkang"], a: "Lompat harimau" },
+  { q: "Gerakan kaki ke samping saat tangan menyentuh lantai disebut...", o: ["Kayang", "Split", "Meroda", "Roll belakang"], a: "Meroda" },
+  { q: "Gerakan split dilakukan dengan cara membuka kaki ke arah...", o: ["Belakang", "Samping", "Depan dan belakang", "Atas"], a: "Depan dan belakang" },
+  { q: "Manfaat melakukan roll depan adalah melatih...", o: ["Kelincahan dan keseimbangan", "Kekuatan tangan saja", "Kecepatan berlari", "Lempar bola"], a: "Kelincahan dan keseimbangan" },
+
+  { q: "Kayang melatih bagian tubuh...", o: ["Paha", "Lengan", "Punggung", "Telinga"], a: "Punggung" },
+  { q: "Gerakan kayang dilakukan dalam posisi tubuh...", o: ["Duduk", "Tidur", "Membungkuk", "Melengkung ke belakang"], a: "Melengkung ke belakang" },
+  { q: "Latihan meroda bermanfaat untuk melatih...", o: ["Kelenturan", "Keseimbangan", "Kelincahan", "Semua benar"], a: "Semua benar" },
+  { q: "Gerakan senam yang paling cocok dilakukan untuk pemula adalah...", o: ["Roll belakang", "Handstand", "Roll depan", "Lompat harimau"], a: "Roll depan" },
+  { q: "Sikap awal melakukan roll belakang adalah posisi tubuh dalam keadaan...", o: ["Tidur telentang", "Berdiri tegak", "Duduk", "Tidur tengkurap"], a: "Berdiri tegak" },
+  { q: "Gerakan handstand harus dilakukan di tempat yang...", o: ["Licin", "Keras", "Luas dan aman", "Semrawut"], a: "Luas dan aman" },
+  { q: "Lompat kangkang dilakukan di atas...", o: ["Meja", "Matras", "Kuda-kuda", "Bangku panjang"], a: "Kuda-kuda" },
+  { q: "Roll depan dimulai dari posisi tubuh...", o: ["Jongkok", "Tidur", "Berdiri tegak", "Berlari"], a: "Jongkok" },
+  { q: "Untuk melakukan meroda, tumpuan utama ada pada...", o: ["Kaki", "Tangan", "Punggung", "Kepala"], a: "Tangan" },
+  { q: "Split biasanya dilakukan oleh atlet...", o: ["Basket", "Sepak bola", "Senam atau balet", "Renang"], a: "Senam atau balet" },
+
+  { q: "Posisi tangan saat melakukan kayang berada di...", o: ["Samping", "Depan", "Belakang", "Atas"], a: "Belakang" },
+  { q: "Senam lantai tanpa alat disebut juga...", o: ["Senam ritmik", "Senam artistik", "Senam bebas", "Senam dasar"], a: "Senam bebas" },
+  { q: "Sebelum melakukan senam, sebaiknya melakukan...", o: ["Permainan", "Pemanasan", "Pendinginan", "Berlari"], a: "Pemanasan" },
+  { q: "Gerakan roll belakang dimulai dari posisi...", o: ["Tidur", "Duduk", "Jongkok", "Berdiri tegak"], a: "Jongkok" },
+  { q: "Split ke samping melatih...", o: ["Keseimbangan", "Kekuatan tangan", "Kelenturan kaki", "Punggung"], a: "Kelenturan kaki" },
+  { q: "Kayang sebaiknya dilakukan di atas...", o: ["Keramik", "Karpet", "Matras", "Lantai semen"], a: "Matras" },
+  { q: "Handstand dilakukan dengan tumpuan pada...", o: ["Kaki", "Kepala", "Tangan", "Punggung"], a: "Tangan" },
+  { q: "Roll depan dapat dilakukan dengan awalan...", o: ["Tidur", "Duduk", "Jongkok", "Split"], a: "Jongkok" },
+  { q: "Gerakan senam yang dilakukan dengan guling ke depan dinamakan...", o: ["Handstand", "Split", "Roll depan", "Kayang"], a: "Roll depan" },
+  { q: "Tujuan utama senam lantai adalah untuk...", o: ["Menghibur", "Menambah tinggi badan", "Melatih kebugaran dan ketangkasan", "Menjadi penari"], a: "Melatih kebugaran dan ketangkasan" },
+  { q: "Gerakan berguling ke samping biasa disebut...", o: ["Meroda", "Kayang", "Split", "Roll belakang"], a: "Meroda" },
+  { q: "Gerakan melengkungkan tubuh ke belakang hingga telapak tangan menyentuh lantai dinamakan...", o: ["Split", "Handstand", "Kayang", "Roll depan"], a: "Kayang" },
+  { q: "Sikap akhir dari roll depan adalah...", o: ["Tidur", "Duduk", "Berdiri", "Tengkurap"], a: "Berdiri" },
+  { q: "Gerakan senam yang bertumpu pada kedua tangan sambil posisi kaki di udara disebut...", o: ["Headstand", "Roll belakang", "Split", "Handstand"], a: "Handstand" },
+  { q: "Gerakan berguling ke belakang dimulai dari posisi...", o: ["Duduk", "Tidur", "Jongkok", "Lari"], a: "Jongkok" },
+  { q: "Tujuan utama melakukan pemanasan sebelum senam adalah untuk...", o: ["Menjadi lebih kuat", "Mencegah cedera", "Menambah berat badan", "Bermain"], a: "Mencegah cedera" },
+  { q: "Gerakan roll belakang harus dilakukan secara...", o: ["Tergesa-gesa", "Pelan", "Berirama", "Terlentang"], a: "Berirama" },
+  { q: "Alat bantu yang bisa digunakan saat latihan handstand adalah...", o: ["Dinding", "Meja", "Tali", "Kursi"], a: "Dinding" },
+  { q: "Senam yang dilakukan tanpa alat disebut juga senam...", o: ["Irama", "Alat", "Lantai", "Dasar"], a: "Lantai" },
+  { q: "Split dapat melatih kelenturan otot bagian...", o: ["Tangan", "Leher", "Punggung", "Kaki"], a: "Kaki" },
+
+  { q: "Untuk pemula, latihan meroda sebaiknya dibantu oleh...", o: ["Teman", "Guru", "Orangtua", "Pelatih"], a: "Guru" },
+  { q: "Gerakan dasar dalam senam lantai terdiri dari...", o: ["Lompat dan duduk", "Berlari dan melompat", "Guling, lompat, dan keseimbangan", "Menendang dan memukul"], a: "Guling, lompat, dan keseimbangan" },
+  { q: "Latihan senam yang baik dilakukan pada waktu...", o: ["Malam hari", "Setelah makan", "Pagi hari", "Saat hujan"], a: "Pagi hari" },
+  { q: "Senam lantai dapat melatih kemampuan tubuh seperti...", o: ["Berpikir", "Kekuatan otot", "Keseimbangan dan kelincahan", "Berkata-kata"], a: "Keseimbangan dan kelincahan" },
+  { q: "Roll depan diawali dari posisi tubuh...", o: ["Tidur tengkurap", "Duduk", "Jongkok", "Berlari"], a: "Jongkok" },
+  { q: "Gerakan handstand memerlukan kekuatan otot bagian...", o: ["Perut", "Tangan", "Kaki", "Leher"], a: "Tangan" },
+  { q: "Senam lantai biasanya dilakukan di atas alat yang disebut...", o: ["Trampolin", "Matras", "Balok", "Karpet"], a: "Matras" },
+  { q: "Gerakan memutar tubuh ke samping sambil bertumpu pada tangan disebut...", o: ["Roll belakang", "Kayang", "Meroda", "Split"], a: "Meroda" },
+  { q: "Lompat harimau dilakukan setelah melakukan awalan dengan gerakan...", o: ["Lari", "Jongkok", "Tidur", "Meroda"], a: "Lari" },
+  { q: "Salah satu manfaat senam lantai adalah untuk melatih...", o: ["Otot wajah", "Keseimbangan tubuh", "Bermain bola", "Menulis cepat"], a: "Keseimbangan tubuh" },
+
+  { q: "Roll depan dan roll belakang termasuk dalam kategori gerakan...", o: ["Melompat", "Berguling", "Melayang", "Menarik"], a: "Berguling" },
+  { q: "Sikap tubuh dalam melakukan kayang menyerupai bentuk huruf...", o: ["U", "L", "O", "Z"], a: "U" },
+  { q: "Sebelum melakukan handstand, kita perlu melatih kekuatan otot...", o: ["Telinga", "Lutut", "Lengan", "Mata"], a: "Lengan" },
+  { q: "Dalam roll belakang, dagu harus...", o: ["Menengadah", "Menempel ke dada", "Ditegakkan", "Melihat ke samping"], a: "Menempel ke dada" },
+  { q: "Gerakan senam yang memerlukan kelincahan tinggi adalah...", o: ["Split", "Meroda", "Tidur", "Lari santai"], a: "Meroda" },
+  { q: "Gerakan split mengharuskan kita untuk membuka kaki...", o: ["Kanan saja", "Depan belakang", "Lurus ke samping", "Kedua arah"], a: "Depan belakang" },
+  { q: "Roll depan dilakukan dari posisi awal...", o: ["Duduk", "Berlari", "Jongkok", "Terlentang"], a: "Jongkok" },
+  { q: "Gerakan senam yang dapat memperkuat otot perut adalah...", o: ["Kayang", "Roll", "Handstand", "Sit up"], a: "Sit up" },
+  { q: "Latihan keseimbangan tubuh bisa dilakukan dengan gerakan...", o: ["Lari", "Berdiri satu kaki", "Tidur", "Melompat"], a: "Berdiri satu kaki" },
+  { q: "Senam lantai dapat dilakukan secara berirama maupun...", o: ["Berpikir", "Bermusik", "Bebas", "Bermain"], a: "Bebas" },
+  { q: "Sikap awal untuk melakukan gerakan roll depan adalah...", o: ["Berdiri tegak", "Jongkok menghadap matras", "Tidur telentang", "Duduk bersila"], a: "Jongkok menghadap matras" },
+
+
+      // ... (Soal 3-50 untuk Senam)
+                ]
+            },
+            irama: {
+                title: "Aktivitas Gerak Berirama",
+                questions: [
+                    // 50 Soal Gerak Berirama
+                    { q: "Unsur utama yang membedakan gerak berirama dengan senam biasa adalah...", o: ["Kekuatan otot", "Penggunaan matras", "Adanya irama musik", "Kecepatan gerakan"], a: "Adanya irama musik" },
+                       { q: "Gerak berirama biasanya dilakukan dengan iringan...", o: ["Alat berat", "Lagu atau ketukan musik", "Suara hewan", "Suara alam"], a: "Lagu atau ketukan musik" },
+  { q: "Gerakan mengayun tangan ke kanan dan kiri disebut gerakan...", o: ["Statis", "Berat", "Dinamis", "Lambat"], a: "Dinamis" },
+  { q: "Sikap awal sebelum melakukan gerak berirama adalah...", o: ["Duduk santai", "Tiduran", "Berdiri tegak", "Lari di tempat"], a: "Berdiri tegak" },
+  { q: "Manfaat dari aktivitas gerak berirama adalah...", o: ["Melatih kekuatan bicara", "Melatih kecepatan membaca", "Melatih kelenturan dan kebugaran", "Melatih kemampuan matematika"], a: "Melatih kelenturan dan kebugaran" },
+  { q: "Contoh alat bantu dalam gerak berirama adalah...", o: ["Bola besar", "Matras", "Pita", "Tiang bendera"], a: "Pita" },
+  { q: "Irama dalam gerak berirama bisa berasal dari...", o: ["Makanan", "Musik atau tepuk tangan", "Buku", "Peluit polisi"], a: "Musik atau tepuk tangan" },
+  { q: "Saat melakukan gerak berirama, pernapasan yang baik dilakukan secara...", o: ["Cepat dan pendek", "Dalam dan teratur", "Lambat sekali", "Tertahan"], a: "Dalam dan teratur" },
+  { q: "Gerakan senam berirama dilakukan secara...", o: ["Kaku", "Acak", "Mengikuti irama", "Tidak teratur"], a: "Mengikuti irama" },
+  { q: "Tujuan utama gerak berirama bagi siswa adalah untuk...", o: ["Menghafal lagu", "Mengembangkan rasa irama dan kebugaran", "Meniru guru", "Mencari juara"], a: "Mengembangkan rasa irama dan kebugaran" },
+
+  { q: "Gerakan kepala, tangan, dan kaki saat senam irama harus...", o: ["Terpisah", "Seragam dan berirama", "Asal-asalan", "Pelan-pelan saja"], a: "Seragam dan berirama" },
+  { q: "Gerakan kaki dalam senam irama dapat dilakukan dengan cara...", o: ["Melompat-lompat sembarangan", "Berjalan dan menghentak mengikuti musik", "Menendang orang lain", "Diam saja"], a: "Berjalan dan menghentak mengikuti musik" },
+  { q: "Senam berirama bisa dilakukan secara individu dan juga...", o: ["Bersama teman", "Dengan komputer", "Sendiri di rumah", "Tanpa irama"], a: "Bersama teman" },
+  { q: "Latihan keseimbangan dalam gerak berirama dapat dilakukan dengan...", o: ["Melompat ke belakang", "Berdiri satu kaki", "Berbaring", "Membaca buku"], a: "Berdiri satu kaki" },
+  { q: "Gerak berirama yang benar dilakukan dengan posisi tubuh yang...", o: ["Tegak dan rileks", "Miring", "Kaku", "Membungkuk"], a: "Tegak dan rileks" },
+  { q: "Waktu terbaik untuk latihan gerak berirama adalah...", o: ["Saat malam", "Sebelum makan", "Pagi atau siang hari", "Saat hujan deras"], a: "Pagi atau siang hari" },
+  { q: "Langkah dasar dalam gerak berirama adalah...", o: ["Langkah biasa", "Langkah cepat", "Langkah malas", "Langkah berat"], a: "Langkah biasa" },
+  { q: "Senam irama termasuk dalam senam yang bersifat...", o: ["Kaku", "Militer", "Rekreatif", "Seram"], a: "Rekreatif" },
+  { q: "Pita, bola, dan simpai adalah alat bantu dalam...", o: ["Senam lantai", "Gerak berirama", "Renang", "Sepak bola"], a: "Gerak berirama" },
+  { q: "Gerakan tangan dan kaki harus dilakukan dengan gerakan yang...", o: ["Terburu-buru", "Asal", "Bertenaga", "Koordinatif"], a: "Koordinatif" },
+
+  { q: "Melompat dengan dua kaki sambil mengikuti irama musik termasuk gerak...", o: ["Dasar", "Beban", "Santai", "Bebas"], a: "Dasar" },
+  { q: "Gerak berirama sebaiknya dilakukan di tempat yang...", o: ["Semrawut", "Berbahaya", "Luas dan aman", "Gelap dan sempit"], a: "Luas dan aman" },
+  { q: "Langkah kaki ke depan dan ke belakang secara bergantian dinamakan langkah...", o: ["Silang", "Depan", "Samping", "Tegap"], a: "Depan" },
+  { q: "Sikap akhir setelah senam berirama adalah...", o: ["Duduk", "Tiarap", "Berdiri tegak dan rileks", "Berlari"], a: "Berdiri tegak dan rileks" },
+  { q: "Salah satu manfaat senam irama adalah melatih...", o: ["Kekuatan otot wajah", "Kemampuan berbicara", "Koordinasi dan keluwesan tubuh", "Kecepatan mengetik"], a: "Koordinasi dan keluwesan tubuh" },
+  { q: "Gerak berirama biasanya diiringi musik yang bersifat...", o: ["Keras dan cepat", "Tenang dan mengalun", "Membosankan", "Tidak terdengar"], a: "Tenang dan mengalun" },
+  { q: "Sebelum melakukan gerak berirama, hal penting yang harus dilakukan adalah...", o: ["Minum air", "Makan berat", "Pemanasan", "Tidur"], a: "Pemanasan" },
+  { q: "Saat senam berirama, kita harus menjaga...", o: ["Teman bicara", "Koordinasi gerak dan irama", "Warna baju", "Suara nyanyian"], a: "Koordinasi gerak dan irama" },
+  { q: "Senam irama bisa meningkatkan kemampuan siswa dalam hal...", o: ["Menjawab soal", "Mendengarkan irama", "Membaca cepat", "Berhitung"], a: "Mendengarkan irama" },
+  { q: "Gerakan melompat dengan mengayun tangan disebut...", o: ["Langkah biasa", "Lompat irama", "Lompat katak", "Lompat tali"], a: "Lompat irama" },
+
+  { q: "Alat musik yang sering digunakan dalam senam berirama adalah...", o: ["Gitar", "Drum", "Pianika", "Ketukan ritmis"], a: "Ketukan ritmis" },
+  { q: "Langkah-langkah dalam senam irama disebut juga sebagai gerakan...", o: ["Acak", "Keseharian", "Dasar", "Menarik"], a: "Dasar" },
+  { q: "Gerakan tangan memutar seperti mengayun disebut...", o: ["Memukul", "Mengibas", "Melingkar", "Mengayun"], a: "Mengayun" },
+  { q: "Gerakan memutar badan ke kiri dan ke kanan disebut...", o: ["Memutar pinggul", "Meliukkan badan", "Menekuk kaki", "Mengayunkan lengan"], a: "Meliukkan badan" },
+  { q: "Keseimbangan sangat penting dalam senam irama untuk menghindari...", o: ["Salah gerakan", "Cedera", "Ketinggalan lagu", "Bosan"], a: "Cedera" },
+  { q: "Gerak berirama termasuk kegiatan olahraga yang bersifat...", o: ["Kompetitif", "Seni dan kebugaran", "Santai dan malas", "Statik"], a: "Seni dan kebugaran" },
+  { q: "Agar gerakan senam irama tampak indah, gerakan harus...", o: ["Cepat dan keras", "Lambat dan lembut", "Serasi dan sesuai irama", "Acak dan bebas"], a: "Serasi dan sesuai irama" },
+  { q: "Senam irama termasuk kegiatan fisik yang dilakukan dengan tujuan...", o: ["Meningkatkan nilai matematika", "Kesehatan dan hiburan", "Menggambar", "Tidur sehat"], a: "Kesehatan dan hiburan" },
+  { q: "Saat melakukan senam irama, kita harus memperhatikan...", o: ["Pakaian saja", "Irama musik", "Warna lantai", "Jumlah siswa"], a: "Irama musik" },
+  { q: "Langkah dasar dalam senam irama ada berapa macam?", o: ["2", "3", "4", "5"], a: "3" },
+
+  { q: "Contoh gerakan pemanasan sebelum senam irama adalah...", o: ["Menggulung karpet", "Menggosok gigi", "Meregangkan tangan", "Makan buah"], a: "Meregangkan tangan" },
+  { q: "Gerak berirama yang baik dilakukan dalam suasana...", o: ["Ramai dan gaduh", "Tegang", "Rileks dan menyenangkan", "Lapar"], a: "Rileks dan menyenangkan" },
+  { q: "Latihan gerak berirama secara rutin dapat meningkatkan...", o: ["Intonasi suara", "Kelenturan tubuh", "Kekuatan mata", "Ketangkasan tangan"], a: "Kelenturan tubuh" },
+  { q: "Agar gerak berirama lebih menarik, biasanya digunakan alat bantu seperti...", o: ["Tali tambang", "Pita senam", "Kursi plastik", "Kertas gambar"], a: "Pita senam" },
+  { q: "Saat mengikuti senam berirama, kita harus memperhatikan sikap tubuh agar...", o: ["Bergaya", "Tidak capek", "Terlihat indah", "Tidak kedengaran"], a: "Terlihat indah" },
+  { q: "Langkah kaki ke samping kanan dan kiri dinamakan langkah...", o: ["Tegap", "Silang", "Samping", "Tinggi"], a: "Samping" },
+  { q: "Senam irama sangat cocok dilakukan oleh anak-anak karena dapat melatih...", o: ["Prestasi akademik", "Disiplin dan kerja sama", "Suara dan nyanyian", "Kemampuan menulis"], a: "Disiplin dan kerja sama" },
+  { q: "Senam berirama membuat tubuh menjadi lebih...", o: ["Kaku", "Sakit", "Bugar dan lentur", "Malas"], a: "Bugar dan lentur" },
+  { q: "Contoh lagu anak yang bisa digunakan untuk gerak berirama adalah...", o: ["Indonesia Raya", "Balonku", "Mars Pemuda", "Lagu Daerah"], a: "Balonku" },
+  { q: "Gerak berirama memadukan gerakan tubuh dengan...", o: ["Pikiran", "Perasaan", "Irama musik", "Kegiatan lain"], a: "Irama musik" },
+  { q: "Gerakan langkah biasa dalam senam irama disebut juga...", o: ["Galop", "Loospas", "Bytrekpas", "Wallpas"], a: "Loospas" },
+
+
+      // ... (Soal 3-50 untuk Gerak Berirama)
+                ]
+            },
+            air: {
+                title: "Aktivitas Permainan dan Olahraga di Air",
+                questions: [
+                    // 50 Soal Aktivitas Air
+                    { q: "Gaya renang yang gerakannya meniru katak berenang adalah...", o: ["Gaya bebas", "Gaya punggung", "Gaya dada", "Gaya kupu-kupu"], a: "Gaya dada" },
+                      { q: "Olahraga air yang menggunakan papan selancar dan ombak disebut...", o: ["Selancar", "Renang", "Polo air", "Snorkeling"], a: "Selancar" },
+  { q: "Gaya renang tercepat adalah...", o: ["Gaya dada", "Gaya bebas", "Gaya punggung", "Gaya kupu-kupu"], a: "Gaya bebas" },
+  { q: "Manfaat berenang bagi tubuh adalah...", o: ["Menguatkan tulang", "Melatih keseimbangan di darat", "Meningkatkan daya tahan tubuh", "Menambah berat badan"], a: "Meningkatkan daya tahan tubuh" },
+  { q: "Alat bantu untuk belajar renang disebut...", o: ["Pelampung", "Kacamata", "Topi renang", "Handuk"], a: "Pelampung" },
+  { q: "Olahraga air yang dilakukan di kolam dengan bola disebut...", o: ["Polo air", "Selam", "Selancar", "Kayak"], a: "Polo air" },
+  { q: "Gaya kupu-kupu dalam renang menyerupai gerakan...", o: ["Katak", "Ikan paus", "Kupu-kupu", "Ular"], a: "Kupu-kupu" },
+  { q: "Sebelum berenang sebaiknya melakukan...", o: ["Makan berat", "Pemanasan", "Tidur", "Minum es"], a: "Pemanasan" },
+  { q: "Olahraga menyelam disebut juga...", o: ["Diving", "Floating", "Swimming", "Sliding"], a: "Diving" },
+  { q: "Snorkeling biasanya dilakukan di...", o: ["Kolam", "Sungai", "Laut dangkal", "Danau"], a: "Laut dangkal" },
+  { q: "Gaya renang yang menghadap ke atas disebut...", o: ["Gaya dada", "Gaya bebas", "Gaya kupu-kupu", "Gaya punggung"], a: "Gaya punggung" },
+  { q: "Topi renang berguna untuk...", o: ["Mempercantik", "Melindungi rambut", "Menutup telinga", "Menutup mata"], a: "Melindungi rambut" },
+  { q: "Gerakan meluncur dilakukan setelah...", o: ["Masuk air", "Sampai di ujung kolam", "Melompat", "Berdiri"], a: "Masuk air" },
+  { q: "Renang dapat membantu melatih otot...", o: ["Lengan dan kaki", "Perut saja", "Jari tangan", "Leher"], a: "Lengan dan kaki" },
+  { q: "Saat belajar berenang, sebaiknya didampingi oleh...", o: ["Teman sebaya", "Pelatih atau guru", "Orang asing", "Anak kecil"], a: "Pelatih atau guru" },
+  { q: "Air yang baik untuk berenang adalah...", o: ["Kotor", "Keruh", "Jernih", "Berlumpur"], a: "Jernih" },
+  { q: "Salah satu perlengkapan renang adalah...", o: ["Sarung tangan", "Kacamata renang", "Rompi", "Kaos kaki"], a: "Kacamata renang" },
+  { q: "Gaya dada dalam renang juga disebut...", o: ["Breaststroke", "Butterfly", "Freestyle", "Backstroke"], a: "Breaststroke" },
+  { q: "Perenang yang terkenal dari Indonesia adalah...", o: ["Siman Sudartawa", "Greysia Polii", "Liliyana Natsir", "Eko Yuli"], a: "Siman Sudartawa" },
+  { q: "Fungsi pelampung saat berenang adalah...", o: ["Mendekorasi kolam", "Membantu mengapung", "Menambah kecepatan", "Sebagai alat lomba"], a: "Membantu mengapung" },
+  { q: "Pakaian yang digunakan saat berenang disebut...", o: ["Seragam", "Pakaian biasa", "Baju renang", "Piyama"], a: "Baju renang" },
+  { q: "Agar aman saat bermain air, kita harus berada di...", o: ["Kolam dalam", "Laut lepas", "Kolam dangkal", "Air terjun"], a: "Kolam dangkal" },
+  { q: "Olahraga air yang menggunakan dayung disebut...", o: ["Selancar", "Renang", "Arung jeram", "Berenang gaya bebas"], a: "Arung jeram" },
+  { q: "Salah satu manfaat olahraga air adalah...", o: ["Membuat cepat lapar", "Membuat lelah berlebihan", "Meningkatkan kebugaran", "Menyebabkan sakit kepala"], a: "Meningkatkan kebugaran" },
+  { q: "Gaya renang yang menggunakan kedua tangan bersamaan adalah...", o: ["Gaya bebas", "Gaya dada", "Gaya punggung", "Gaya kupu-kupu"], a: "Gaya kupu-kupu" },
+  { q: "Gerakan tangan dan kaki dalam renang harus...", o: ["Kaku", "Kuat dan teratur", "Lambat", "Dilakukan asal-asalan"], a: "Kuat dan teratur" },
+  { q: "Polo air adalah permainan yang dimainkan di...", o: ["Lapangan", "Air", "Pasir", "Rumput"], a: "Air" },
+  { q: "Saat berenang, pernapasan dilakukan dengan...", o: ["Mulut dan hidung dalam air", "Menahan napas selamanya", "Menghirup air", "Mengatur keluar masuk napas"], a: "Mengatur keluar masuk napas" },
+  { q: "Bermain air yang aman dilakukan di bawah...", o: ["Pohon", "Terik matahari", "Pengawasan orang dewasa", "Teman sebaya"], a: "Pengawasan orang dewasa" },
+  { q: "Gaya renang yang banyak digunakan pemula adalah...", o: ["Gaya punggung", "Gaya kupu-kupu", "Gaya dada", "Gaya terbang"], a: "Gaya dada" },
+  { q: "Selancar dilakukan dengan menggunakan...", o: ["Tali", "Ban", "Papan", "Pelampung"], a: "Papan" },
+  { q: "Olahraga di air yang mengandalkan gerakan kaki dan tangan disebut...", o: ["Sepak bola", "Basket", "Renang", "Catur"], a: "Renang" },
+  { q: "Kegiatan menyelam ke dalam laut disebut...", o: ["Snorkeling", "Surfing", "Diving", "Melompat"], a: "Diving" },
+  { q: "Gaya bebas dalam renang disebut juga...", o: ["Freestyle", "Butterfly", "Backstroke", "Breaststroke"], a: "Freestyle" },
+  { q: "Gaya punggung disebut juga dengan istilah...", o: ["Backstroke", "Freestyle", "Butterfly", "Breaststroke"], a: "Backstroke" },
+  { q: "Perlombaan renang biasanya dilakukan di...", o: ["Lapangan", "Kolam renang", "Danau", "Selokan"], a: "Kolam renang" },
+  { q: "Sebelum memasuki kolam, sebaiknya melakukan...", o: ["Cuci kaki", "Pemanasan", "Makan besar", "Tidur"], a: "Pemanasan" },
+  { q: "Renang adalah olahraga yang bermanfaat untuk...", o: ["Menguras tenaga", "Melatih fisik dan pernapasan", "Mengurangi tinggi badan", "Menambah rasa lapar"], a: "Melatih fisik dan pernapasan" },
+  { q: "Jika tidak bisa berenang, sebaiknya memakai...", o: ["Sarung", "Pelampung", "Sepatu", "Selimut"], a: "Pelampung" },
+  { q: "Arah pandangan saat berenang gaya bebas adalah...", o: ["Ke atas", "Ke bawah air", "Ke samping", "Ke belakang"], a: "Ke bawah air" },
+  { q: "Saat belajar gaya kupu-kupu, gerakan kaki menyerupai...", o: ["Kipas", "Katak", "Lumba-lumba", "Katak dan kura-kura"], a: "Lumba-lumba" },
+  { q: "Olahraga air yang sering dilakukan sambil melihat keindahan bawah laut adalah...", o: ["Polo air", "Snorkeling", "Renang gaya bebas", "Lari di pasir"], a: "Snorkeling" },
+  { q: "Untuk berenang dengan aman, kita perlu tahu kedalaman...", o: ["Laut", "Kolam", "Jalan", "Lapangan"], a: "Kolam" },
+  { q: "Gerakan kaki saat gaya dada menyerupai gerakan...", o: ["Katak", "Ikan paus", "Anjing", "Ular"], a: "Katak" },
+  { q: "Saat melakukan gerakan meluncur, posisi badan harus...", o: ["Tegak", "Bengkok", "Lurus", "Miring"], a: "Lurus" },
+  { q: "Alat bantu untuk melihat dalam air disebut...", o: ["Pelampung", "Kacamata renang", "Topi renang", "Sarung tangan"], a: "Kacamata renang" },
+  { q: "Renang dapat menyehatkan jantung karena...", o: ["Menguras tenaga", "Melatih pernapasan", "Menghindari air", "Menghindari olahraga"], a: "Melatih pernapasan" },
+  { q: "Gaya kupu-kupu termasuk gaya renang yang...", o: ["Paling mudah", "Paling indah", "Paling sulit", "Paling lambat"], a: "Paling sulit" },
+  { q: "Olahraga di air yang dilakukan bersama tim dengan bola disebut...", o: ["Renang", "Polo air", "Selancar", "Snorkeling"], a: "Polo air" },
+  { q: "Renang gaya bebas menggunakan gerakan kaki yang...", o: ["Menendang ke samping", "Melayang", "Menendang naik turun", "Diam"], a: "Menendang naik turun" },
+  { q: "Snorkeling membutuhkan alat bantu berupa...", o: ["Bola", "Pelampung", "Pipa pernapasan dan kacamata", "Papan selancar"], a: "Pipa pernapasan dan kacamata" },
+  { q: "Manfaat berenang lainnya adalah melatih...", o: ["Kecepatan lari", "Keseimbangan tubuh", "Tekanan darah tinggi", "Suara"], a: "Keseimbangan tubuh" },
+  { q: "Gaya dada disebut juga dengan gaya...", o: ["Katak", "Bebek", "Ikan", "Kura-kura"], a: "Katak" },
+  { q: "Olahraga air bisa dilakukan di kolam renang atau...", o: ["Rumah", "Pasar", "Pantai", "Sawah"], a: "Pantai" },
+  { q: "Renang juga bisa menjadi sarana untuk...", o: ["Tidur", "Hiburan dan rekreasi", "Menari", "Belanja"], a: "Hiburan dan rekreasi" },
+  { q: "Alat keselamatan utama di air adalah...", o: ["Handuk", "Kacamata", "Pelampung", "Kaos kaki"], a: "Pelampung" },
+  { q: "Gaya punggung dilakukan dengan posisi tubuh menghadap ke...", o: ["Bawah", "Atas", "Samping", "Belakang"], a: "Atas" },
+  { q: "Saat berenang, kita sebaiknya tidak...", o: ["Mendengarkan pelatih", "Berteriak di dalam air", "Melatih napas", "Menggerakkan kaki dan tangan"], a: "Berteriak di dalam air" },
+  { q: "Setelah berenang, sebaiknya langsung...", o: ["Makan berat", "Mengeringkan badan", "Tidur", "Main lagi"], a: "Mengeringkan badan" },
+  { q: "Berenang membuat tubuh menjadi...", o: ["Lemah", "Cepat lelah", "Sehat dan bugar", "Berat"], a: "Sehat dan bugar" },
+  { q: "Saat meluncur, kedua tangan berada...", o: ["Di belakang", "Di samping", "Di depan lurus", "Di pinggang"], a: "Di depan lurus" },
+  { q: "Tujuan melakukan peregangan sebelum berenang adalah...", o: ["Menyegarkan pikiran", "Menghindari cedera", "Melatih hafalan", "Melatih kecepatan"], a: "Menghindari cedera" },
+                    { q: "Sebelum masuk ke kolam renang, sebaiknya kita melakukan...", o: ["Makan berat", "Pemanasan", "Langsung melompat", "Tidur"], a: "Pemanasan" },
+
+      // ... (Soal 3-50 untuk Aktivitas Air)
+                ]
+            },
+            kebugaran: {
+                title: "Aktivitas Kebugaran untuk Kesehatan",
+                questions: [
+                    // 50 Soal Kebugaran
+                    { q: "Kemampuan tubuh melakukan aktivitas tanpa mengalami kelelahan yang berarti disebut...", o: ["Kekuatan", "Kecepatan", "Kebugaran jasmani", "Kelenturan"], a: "Kebugaran jasmani" },
+                      { q: "Latihan yang bertujuan meningkatkan daya tahan tubuh adalah...", o: ["Angkat beban", "Jogging", "Push up", "Sit up"], a: "Jogging" },
+  { q: "Contoh latihan yang melatih kekuatan otot lengan adalah...", o: ["Push up", "Lari jarak jauh", "Senam lantai", "Berlari di tempat"], a: "Push up" },
+  { q: "Sit up bermanfaat untuk melatih otot bagian...", o: ["Lengan", "Perut", "Kaki", "Leher"], a: "Perut" },
+  { q: "Senam pemanasan dilakukan sebelum olahraga untuk...", o: ["Menambah berat badan", "Menurunkan suhu tubuh", "Mencegah cedera", "Mengurangi nafsu makan"], a: "Mencegah cedera" },
+  { q: "Berikut ini contoh olahraga yang melatih kelenturan adalah...", o: ["Angkat besi", "Kayang", "Lompat jauh", "Berlari"], a: "Kayang" },
+  { q: "Kecepatan lari bisa ditingkatkan dengan latihan...", o: ["Lari cepat", "Jalan santai", "Push up", "Senam pagi"], a: "Lari cepat" },
+  { q: "Kebugaran jasmani sangat penting untuk...", o: ["Tidur lebih lama", "Menjadi lebih malas", "Menjaga kesehatan", "Menambah rasa lapar"], a: "Menjaga kesehatan" },
+  { q: "Olahraga yang baik dilakukan minimal selama...", o: ["5 menit", "15 menit", "30 menit", "1 menit"], a: "30 menit" },
+  { q: "Latihan kelincahan dapat dilakukan dengan...", o: ["Lompat tali", "Lari zig-zag", "Berlari lurus", "Push up"], a: "Lari zig-zag" },
+
+  { q: "Gerakan melompat ke atas dan ke bawah secara berulang disebut...", o: ["Push up", "Skipping", "Sit up", "Jogging"], a: "Skipping" },
+  { q: "Tujuan utama dari pendinginan setelah olahraga adalah...", o: ["Membuat lelah", "Menaikkan suhu tubuh", "Membuat tubuh lebih lentur", "Mengembalikan kondisi tubuh"], a: "Mengembalikan kondisi tubuh" },
+  { q: "Otot yang dilatih saat melakukan squat adalah...", o: ["Lengan", "Perut", "Kaki", "Punggung"], a: "Kaki" },
+  { q: "Latihan peregangan bertujuan untuk meningkatkan...", o: ["Kecepatan", "Kelincahan", "Kelenturan", "Keseimbangan"], a: "Kelenturan" },
+  { q: "Olahraga harus dilakukan secara...", o: ["Berlebihan", "Jarang", "Rutin", "Lambat"], a: "Rutin" },
+  { q: "Latihan plank berguna untuk memperkuat otot...", o: ["Punggung", "Perut", "Leher", "Tangan"], a: "Perut" },
+  { q: "Olahraga yang dilakukan di air adalah...", o: ["Renang", "Sepak bola", "Tenis", "Basket"], a: "Renang" },
+  { q: "Keseimbangan tubuh dapat dilatih dengan gerakan...", o: ["Berlari", "Berdiri dengan satu kaki", "Sit up", "Push up"], a: "Berdiri dengan satu kaki" },
+  { q: "Push up adalah latihan untuk melatih...", o: ["Kelenturan", "Kekuatan otot lengan", "Keseimbangan", "Daya tahan"], a: "Kekuatan otot lengan" },
+  { q: "Jogging termasuk dalam latihan...", o: ["Daya tahan jantung", "Kelenturan", "Kekuatan otot", "Keseimbangan"], a: "Daya tahan jantung" },
+
+  { q: "Aktivitas fisik yang dilakukan di taman termasuk olahraga...", o: ["Rekreasi", "Kompetitif", "Ekstrem", "Berat"], a: "Rekreasi" },
+  { q: "Menjaga kebugaran jasmani membuat tubuh terasa lebih...", o: ["Lelah", "Letih", "Segar", "Ngantuk"], a: "Segar" },
+  { q: "Berapa kali minimal olahraga dilakukan dalam seminggu?", o: ["1 kali", "2 kali", "3 kali", "7 kali"], a: "3 kali" },
+  { q: "Lari di tempat dapat melatih...", o: ["Otot lengan", "Kelincahan", "Daya tahan", "Kelenturan"], a: "Daya tahan" },
+  { q: "Makanan bergizi penting untuk mendukung...", o: ["Tidur", "Olahraga", "Bermain", "Menonton"], a: "Olahraga" },
+  { q: "Olahraga dapat memperkuat sistem...", o: ["Pencernaan", "Imun", "Pendengaran", "Penglihatan"], a: "Imun" },
+  { q: "Latihan keseimbangan dilakukan agar tubuh tidak mudah...", o: ["Ngantuk", "Terjatuh", "Capek", "Panas"], a: "Terjatuh" },
+  { q: "Senam irama dapat dilakukan dengan bantuan...", o: ["Suara peluit", "Alat musik", "Irama musik", "Lampu sorot"], a: "Irama musik" },
+  { q: "Gerakan peregangan dilakukan dengan tujuan untuk...", o: ["Melatih kekuatan", "Mengurangi lemak", "Menghindari cedera", "Menambah berat badan"], a: "Menghindari cedera" },
+  { q: "Latihan squat dilakukan untuk melatih otot...", o: ["Leher", "Paha dan kaki", "Perut", "Pinggang"], a: "Paha dan kaki" },
+
+  { q: "Saat olahraga, kita sebaiknya memakai pakaian yang...", o: ["Tebal", "Ketat", "Menyerap keringat", "Berwarna gelap"], a: "Menyerap keringat" },
+  { q: "Kegiatan olahraga bisa membantu meningkatkan...", o: ["Rasa lapar", "Prestasi belajar", "Berat badan", "Rasa kantuk"], a: "Prestasi belajar" },
+  { q: "Latihan kelenturan bisa dilakukan dengan gerakan...", o: ["Plank", "Sit up", "Split", "Pull up"], a: "Split" },
+  { q: "Tujuan olahraga secara teratur adalah untuk...", o: ["Menjadi kurus", "Menjaga kebugaran", "Meningkatkan nafsu makan", "Membuat cepat tidur"], a: "Menjaga kebugaran" },
+  { q: "Salah satu manfaat olahraga adalah menjaga kesehatan organ...", o: ["Jantung", "Hidung", "Telinga", "Kulit"], a: "Jantung" },
+  { q: "Peregangan sebaiknya dilakukan saat...", o: ["Bangun tidur", "Sebelum dan sesudah olahraga", "Makan siang", "Menonton TV"], a: "Sebelum dan sesudah olahraga" },
+  { q: "Senam pagi dilakukan untuk membuat tubuh lebih...", o: ["Ngantuk", "Lemas", "Segar", "Kaku"], a: "Segar" },
+  { q: "Olahraga di pagi hari bermanfaat karena udara masih...", o: ["Panas", "Dingin", "Bersih dan segar", "Kotor"], a: "Bersih dan segar" },
+  { q: "Melatih kelincahan dapat meningkatkan kemampuan dalam...", o: ["Menghafal", "Bergerak cepat", "Tidur nyenyak", "Mengunyah"], a: "Bergerak cepat" },
+  { q: "Alat untuk mengukur kebugaran adalah...", o: ["Timbangan", "Stopwatch", "Thermometer", "Meteran"], a: "Stopwatch" },
+
+  { q: "Push up dan sit up termasuk latihan yang dilakukan dengan...", o: ["Berlari", "Mengangkat beban", "Berat badan sendiri", "Menggunakan alat"], a: "Berat badan sendiri" },
+  { q: "Berolahraga di luar ruangan sebaiknya dilakukan saat cuaca...", o: ["Hujan", "Berangin", "Panas terik", "Cerah"], a: "Cerah" },
+  { q: "Kebugaran jasmani yang baik bisa membuat tubuh lebih...", o: ["Cepat lelah", "Sakit-sakitan", "Aktif", "Mudah ngantuk"], a: "Aktif" },
+  { q: "Senam lantai termasuk latihan yang meningkatkan...", o: ["Kelenturan dan kekuatan", "Kecepatan", "Keseimbangan", "Kelincahan"], a: "Kelenturan dan kekuatan" },
+  { q: "Latihan naik-turun tangga berguna untuk melatih...", o: ["Otot kaki", "Otot perut", "Otot dada", "Otot lengan"], a: "Otot kaki" },
+  { q: "Meningkatkan daya tahan jantung bisa dilakukan dengan...", o: ["Push up", "Jogging", "Sit up", "Squat"], a: "Jogging" },
+  { q: "Gerakan roll depan biasa dilakukan dalam...", o: ["Senam lantai", "Berlari", "Renang", "Sepak bola"], a: "Senam lantai" },
+  { q: "Latihan untuk menguatkan punggung dilakukan dengan...", o: ["Back up", "Sit up", "Push up", "Pull up"], a: "Back up" },
+  { q: "Berolahraga sambil bermain membuat aktivitas fisik terasa lebih...", o: ["Melelahkan", "Menegangkan", "Menyenangkan", "Berbahaya"], a: "Menyenangkan" },
+  { q: "Gerakan naik-turun bangku melatih otot...", o: ["Perut", "Kaki", "Tangan", "Pundak"], a: "Kaki" },
+                    { q: "Latihan push-up bertujuan untuk melatih kekuatan otot...", o: ["Kaki", "Perut", "Lengan dan dada", "Punggung"], a: "Lengan dan dada" },
+
+
+      // ... (Soal 3-50 untuk Kebugaran)
+                ]
+            },
+            bahaya: {
+                title: "Mencegah Bahaya Merokok & Miras",
+                questions: [
+                    // 50 Soal Bahaya Merokok & Miras
+                    { q: "Zat adiktif dalam rokok yang menyebabkan kecanduan adalah...", o: ["Tar", "Karbon monoksida", "Nikotin", "Oksigen"], a: "Nikotin" },
+                    { q: "Bahaya utama dari minuman keras adalah merusak...", o: ["Pakaian", "Rambut", "Organ tubuh", "Tulisan tangan"], a: "Organ tubuh" },
+  { q: "Rokok dapat menyebabkan gangguan pada organ...", o: ["Hati", "Lambung", "Paru-paru", "Kulit"], a: "Paru-paru" },
+  { q: "Minuman keras disebut juga dengan istilah...", o: ["Makanan ringan", "Minuman energi", "Minuman beralkohol", "Minuman bersoda"], a: "Minuman beralkohol" },
+  { q: "Kebiasaan merokok bisa menyebabkan penyakit...", o: ["Flu biasa", "Kanker paru", "Sakit kepala", "Radang tenggorokan"], a: "Kanker paru" },
+  { q: "Anak-anak sebaiknya tidak merokok karena...", o: ["Tidak bisa membeli", "Tidak tahu cara", "Merokok merusak kesehatan", "Belum cukup umur"], a: "Merokok merusak kesehatan" },
+  { q: "Minuman keras dapat mengganggu kerja...", o: ["Jantung", "Otak", "Tangan", "Mata"], a: "Otak" },
+  { q: "Rokok mengandung zat berbahaya, salah satunya adalah...", o: ["Kalsium", "Vitamin C", "Karbon monoksida", "Protein"], a: "Karbon monoksida" },
+  { q: "Akibat jangka panjang dari merokok adalah...", o: ["Badan menjadi kuat", "Gigi putih", "Kerusakan organ", "Rambut menjadi hitam"], a: "Kerusakan organ" },
+  { q: "Minuman keras membuat seseorang bisa kehilangan...", o: ["Kesehatan", "Keseimbangan", "Konsentrasi", "Semua jawaban benar"], a: "Semua jawaban benar" },
+
+  { q: "Rokok dan minuman keras termasuk dalam kategori zat...", o: ["Aditif", "Alami", "Adiktif", "Sehat"], a: "Adiktif" },
+  { q: "Orang yang kecanduan rokok disebut juga...", o: ["Perokok pasif", "Perokok aktif", "Pengamat", "Pengguna alat"], a: "Perokok aktif" },
+  { q: "Merokok di tempat umum dapat membahayakan orang lain melalui asap, yang disebut...", o: ["Asap murni", "Asap bersih", "Asap rokok", "Perokok pasif"], a: "Perokok pasif" },
+  { q: "Minuman keras dapat merusak fungsi hati yang disebut juga dengan penyakit...", o: ["Diabetes", "Liver", "TBC", "Asma"], a: "Liver" },
+  { q: "Zat kimia dalam rokok yang bisa menyebabkan kanker disebut...", o: ["Nikotin", "Tar", "Kalsium", "Cuka"], a: "Tar" },
+  { q: "Minuman keras dilarang dikonsumsi oleh anak-anak karena...", o: ["Terlalu manis", "Berbahaya bagi tubuh", "Harganya mahal", "Rasanya tidak enak"], a: "Berbahaya bagi tubuh" },
+  { q: "Kegiatan positif yang dapat menghindarkan dari rokok adalah...", o: ["Bermain game terus-menerus", "Belajar kelompok", "Bolos sekolah", "Tidur siang"], a: "Belajar kelompok" },
+  { q: "Merokok dapat menyebabkan gigi menjadi...", o: ["Putih", "Kuning", "Bersih", "Kuat"], a: "Kuning" },
+  { q: "Minuman keras sering menyebabkan kecelakaan karena pengaruhnya terhadap...", o: ["Penglihatan", "Pendengaran", "Konsentrasi", "Baju"], a: "Konsentrasi" },
+  { q: "Salah satu cara mencegah bahaya rokok adalah dengan...", o: ["Membagikannya", "Menyimpannya", "Menghindarinya", "Membelinya"], a: "Menghindarinya" },
+   { q: "Zat dalam rokok yang membuat darah membawa oksigen lebih sedikit adalah...", o: ["Oksigen", "Tar", "Karbon monoksida", "Nitrogen"], a: "Karbon monoksida" },
+  { q: "Efek dari minuman keras terhadap emosi seseorang adalah...", o: ["Tenang", "Labil", "Bijak", "Bahagia"], a: "Labil" },
+  { q: "Penyakit yang sering muncul akibat kebiasaan merokok adalah...", o: ["Kanker paru", "Asam urat", "Cacar air", "Malaria"], a: "Kanker paru" },
+  { q: "Rokok sangat berbahaya bagi anak karena dapat mengganggu...", o: ["Tinggi badan", "Pertumbuhan dan perkembangan", "Warna kulit", "Gaya rambut"], a: "Pertumbuhan dan perkembangan" },
+  { q: "Minuman keras dapat menyebabkan kerusakan permanen pada...", o: ["Otak", "Rambut", "Kulit", "Kuku"], a: "Otak" },
+  { q: "Salah satu cara menghindari ajakan merokok dari teman adalah dengan...", o: ["Menerima rokoknya", "Menolaknya dengan tegas", "Berpura-pura menerima", "Diam saja"], a: "Menolaknya dengan tegas" },
+  { q: "Merokok dapat menyebabkan napas menjadi...", o: ["Segar", "Wangi", "Pendek dan sesak", "Lebih kuat"], a: "Pendek dan sesak" },
+  { q: "Kegiatan yang baik untuk mencegah penyalahgunaan miras adalah...", o: ["Ikut geng", "Berteman dengan pecandu", "Aktif dalam kegiatan sekolah", "Bolos sekolah"], a: "Aktif dalam kegiatan sekolah" },
+  { q: "Peringatan bahaya merokok biasanya terdapat pada...", o: ["Majalah", "Kemasan rokok", "Botol air", "Tas sekolah"], a: "Kemasan rokok" },
+  { q: "Salah satu alasan orang mencoba rokok adalah karena...", o: ["Ingin sehat", "Ingin coba-coba", "Ingin tidur", "Ingin belajar"], a: "Ingin coba-coba" },
+
+  { q: "Dampak negatif merokok terhadap sistem pernapasan adalah...", o: ["Memperkuat paru-paru", "Membersihkan saluran napas", "Merusak paru-paru", "Meningkatkan stamina"], a: "Merusak paru-paru" },
+  { q: "Minuman keras bisa menyebabkan ketergantungan yang disebut juga dengan...", o: ["Kecanduan", "Ketakutan", "Kebugaran", "Kesehatan"], a: "Kecanduan" },
+  { q: "Merokok di lingkungan sekolah termasuk pelanggaran terhadap...", o: ["Tata tertib sekolah", "Kesehatan gigi", "Baju seragam", "Jadwal piket"], a: "Tata tertib sekolah" },
+  { q: "Cara menjaga diri dari rokok dan miras adalah dengan memiliki...", o: ["Banyak uang", "Rasa ingin tahu", "Teman yang positif", "Kemasan rokok"], a: "Teman yang positif" },
+  { q: "Merokok dan minum alkohol dapat menyebabkan kecelakaan terutama saat...", o: ["Berjalan kaki", "Membaca buku", "Berkendara", "Makan"], a: "Berkendara" },
+  { q: "Tempat yang dilarang untuk merokok biasanya disebut...", o: ["Tempat umum", "Zona aman", "Zona bebas asap rokok", "Lapangan"], a: "Zona bebas asap rokok" },
+  { q: "Anak-anak harus menghindari merokok karena tubuh mereka masih dalam masa...", o: ["Istirahat", "Lemah", "Pertumbuhan", "Pendidikan"], a: "Pertumbuhan" },
+  { q: "Selain membahayakan kesehatan, merokok juga merugikan dari segi...", o: ["Keuangan", "Kebersihan", "Pakaian", "Minuman"], a: "Keuangan" },
+  { q: "Merokok bisa membuat lingkungan menjadi...", o: ["Lebih sehat", "Bersih", "Tercemar", "Rapi"], a: "Tercemar" },
+  { q: "Minuman keras dapat menyebabkan seseorang kehilangan...", o: ["Berat badan", "Keseimbangan dan kendali diri", "Suara", "Pandangan"], a: "Keseimbangan dan kendali diri" },
+
+  { q: "Kegiatan yang dapat menggantikan kebiasaan buruk seperti merokok adalah...", o: ["Membaca buku", "Tidur siang", "Melamun", "Menonton TV terus-menerus"], a: "Membaca buku" },
+  { q: "Nikotin adalah zat yang membuat perokok menjadi...", o: ["Kuat", "Pintar", "Kecanduan", "Rajin"], a: "Kecanduan" },
+  { q: "Minuman keras sering kali menyebabkan gangguan pada organ...", o: ["Lambung", "Kulit", "Hati", "Usus"], a: "Hati" },
+  { q: "Jika ditawari rokok oleh teman, sikap yang tepat adalah...", o: ["Mencoba sedikit", "Menolaknya dengan sopan", "Diam saja", "Melaporkan ke polisi"], a: "Menolaknya dengan sopan" },
+  { q: "Minuman keras sangat berbahaya karena bersifat...", o: ["Sehat", "Alami", "Adiktif", "Organik"], a: "Adiktif" },
+  { q: "Zat kimia yang membuat paru-paru hitam pada perokok adalah...", o: ["Tar", "Oksigen", "Air", "Karbohidrat"], a: "Tar" },
+  { q: "Cara terbaik untuk hidup sehat adalah dengan menjauhi...", o: ["Makanan sehat", "Olahraga", "Rokok dan miras", "Air putih"], a: "Rokok dan miras" },
+  { q: "Minuman keras dapat merusak masa depan karena mengganggu...", o: ["Pakaian", "Prestasi belajar", "Tidur siang", "Sarapan"], a: "Prestasi belajar" },
+  { q: "Merokok dapat membuat suara menjadi...", o: ["Lembut", "Serak", "Merdu", "Tinggi"], a: "Serak" },
+  { q: "Kampanye anti rokok dan miras bertujuan untuk...", o: ["Mendorong orang merokok", "Membuat orang penasaran", "Mencegah orang dari bahaya", "Menjual rokok"], a: "Mencegah orang dari bahaya" },
+  { q: "Contoh kegiatan yang menunjukkan hidup sehat adalah...", o: ["Merokok", "Olahraga teratur", "Minum miras", "Begadang"], a: "Olahraga teratur" },
+  { q: "Merokok dan minuman keras tidak baik dikonsumsi karena merusak...", o: ["Keuangan", "Kesehatan", "Lingkungan", "Pakaian"], a: "Kesehatan" },
+  { q: "Jika kita melihat teman yang merokok, sebaiknya kita...", o: ["Meniru", "Membiarkan", "Memberi semangat", "Mengingatkan bahaya merokok"], a: "Mengingatkan bahaya merokok" },
+                    { q: "Penyakit berbahaya pada paru-paru yang sering disebabkan oleh merokok adalah...", o: ["Sakit gigi", "Kanker paru-paru", "Sakit kepala", "Diabetes"], a: "Kanker paru-paru" },
+      // ... (Soal 3-50 untuk Bahaya Rokok)
+                ]
+            }
+        };
+
+        // --- FUNGSI-FUNGSI APLIKASI ---
+        
+        function populateMaterials() {
+            materialSelect.innerHTML = '<option value="">-- Pilih Materi --</option>';
+            for (const key in allQuizzes) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = allQuizzes[key].title;
+                materialSelect.appendChild(option);
+            }
+        }
+
+        function showView(viewName) {
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            if(views[viewName]) views[viewName].classList.remove('hidden');
+        }
+
+        function validateInputs() {
+            const isNameFilled = studentNameInput.value.trim() !== '';
+            const isClassSelected = studentClassSelect.value !== '';
+            const isMaterialSelected = materialSelect.value !== '';
+            startQuizBtn.disabled = !(isNameFilled && isClassSelected && isMaterialSelected);
+        }
+
+        function startQuiz() {
+            currentStudentData.name = studentNameInput.value.trim();
+            currentStudentData.className = studentClassSelect.value;
+            const selectedMaterialKey = materialSelect.value;
+            quizData = allQuizzes[selectedMaterialKey].questions;
+            
+            const quizContainer = document.getElementById('quiz-container');
+            document.getElementById('quiz-title').textContent = allQuizzes[selectedMaterialKey].title;
+            quizContainer.innerHTML = '';
+
+            // Mengambil 50 soal secara acak jika lebih dari 50, atau semua jika kurang/sama
+            const shuffledQuestions = quizData.sort(() => 0.5 - Math.random());
+            const selectedQuestions = shuffledQuestions.slice(0, 50);
+
+            selectedQuestions.forEach((item, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'border p-4 rounded-lg shadow-sm';
+                let optionsHtml = '';
+                // Acak urutan pilihan jawaban
+                const shuffledOptions = item.o.sort(() => 0.5 - Math.random());
+                shuffledOptions.forEach(opt => {
+                    optionsHtml += `<label class="block mt-2 p-2 rounded-md hover:bg-blue-50 transition-colors"><input type="radio" name="question${index}" value="${opt}" class="mr-3">${opt}</label>`;
+                });
+                questionDiv.innerHTML = `<p class="font-semibold">${index + 1}. ${item.q}</p><div class="mt-2">${optionsHtml}</div>`;
+                quizContainer.appendChild(questionDiv);
+            });
+            showView('quiz');
+        }
+
+        async function submitQuiz() {
+            const userAnswers = Array.from(document.querySelectorAll('#quiz-container > div')).map((_, index) => {
+                const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                return selected ? selected.value : null;
+            });
+
+            const correctAnswers = userAnswers.filter((answer, index) => answer === quizData[index].a).length;
+            const score = Math.round((correctAnswers / userAnswers.length) * 100);
+
+            const resultData = {
+                name: currentStudentData.name,
+                className: currentStudentData.className,
+                score: score,
+                correctAnswers: correctAnswers,
+                totalQuestions: userAnswers.length
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(resultData),
+                });
+                if (!response.ok) throw new Error('Gagal mengirim data ke server.');
+                await response.json();
+                displayResults(resultData.name, score, correctAnswers, userAnswers.length);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal menyimpan hasil. Pastikan server backend sudah berjalan.');
+            }
+        }
+        
+        function displayResults(name, score, correct, total) {
+             document.getElementById('student-name-result').textContent = `Siswa: ${name}`;
+             document.getElementById('score-text').textContent = score;
+             document.getElementById('feedback-text').textContent = `Anda menjawab ${correct} dari ${total} soal dengan benar.`;
+             showView('results');
+        }
+
+        async function viewOnlineHistory() {
+            try {
+                const response = await fetch(`${API_URL}/api/history`);
+                if (!response.ok) throw new Error('Gagal mengambil riwayat.');
+                const result = await response.json();
+                onlineHistoryData = result.data; 
+
+                const tableBody = document.getElementById('online-history-table-body');
+                tableBody.innerHTML = ''; 
+
+                if (onlineHistoryData.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Belum ada riwayat partisipasi.</td></tr>';
+                } else {
+                    onlineHistoryData.forEach((record, index) => {
+                        const row = `
+                            <tr>
+                                <td class="border px-3 py-2 text-center">${index + 1}</td>
+                                <td class="border px-3 py-2">${record.name}</td>
+                                <td class="border px-3 py-2 text-center">${record.class_name}</td>
+                                <td class="border px-3 py-2 text-center font-bold">${record.score}</td>
+                                <td class="border px-3 py-2 text-center">${record.correctAnswers}/${record.totalQuestions}</td>
+                                <td class="border px-3 py-2 text-center">${record.timestamp}</td>
+                            </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                }
+                showView('onlineHistory');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal memuat riwayat. Pastikan server backend sudah berjalan.');
+            }
+        }
+        
+        function downloadOnlineHistory() {
+            if (onlineHistoryData.length === 0) {
+                alert('Tidak ada data untuk diunduh.');
+                return;
+            }
+            
+            const dataToExport = onlineHistoryData.map(r => ({
+                "Nama Siswa": r.name,
+                "Kelas": r.class_name,
+                "Skor": r.score,
+                "Jawaban Benar": r.correctAnswers,
+                "Total Soal": r.totalQuestions,
+                "Waktu Pengerjaan": r.timestamp
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Riwayat Kuis");
+            XLSX.writeFile(workbook, `Riwayat_PJOK_Kelas_5_Online.xlsx`);
+        }
+        
+        function downloadCertificate() {
+            const name = currentStudentData.name;
+            const score = document.getElementById('score-text').textContent;
+            
+            document.getElementById('cert-student-name').textContent = name;
+            document.getElementById('cert-score').textContent = score;
+            document.getElementById('cert-date').textContent = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            const qrcodeContainer = document.getElementById('cert-qrcode');
+            qrcodeContainer.innerHTML = '';
+            new QRious({ element: qrcodeContainer, value: `Sertifikat Asli untuk ${name} (Skor: ${score})`, size: 100 });
+            
+            const element = document.getElementById('certificate-layout');
+            const opt = { margin: 0, filename: `Sertifikat_${name}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' } };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function resetWelcomeForm() {
+            studentNameInput.value = '';
+            studentClassSelect.value = '';
+            materialSelect.value = '';
+            validateInputs();
+            showView('welcome');
+        }
+
+        // === FUNGSI PROFIL PENGEMBANG (DIGABUNGKAN KE SINI) ===
+    function loadDeveloperProfile() {
+        // Ganti data ini dengan profil Anda
+        const developerProfile = {
+            name: "Nama Pengembang", // 👈 Ganti nama Anda di sini
+            bio: "Seorang guru PJOK yang berdedikasi dalam mengintegrasikan teknologi untuk menciptakan media pembelajaran yang interaktif dan menyenangkan bagi siswa di era digital.", // 👈 Ganti bio Anda
+            photoUrl: "img/foto_profil.jpg" // 👈 Ganti dengan path foto Anda
+        };
+
+        // Memuat data ke elemen HTML
+        // Pastikan elemen ini ada di HTML Anda
+        const devNameEl = document.getElementById('dev-name');
+        const devBioEl = document.getElementById('dev-bio');
+        const devPhotoEl = document.getElementById('dev-photo');
+
+        if (devNameEl) devNameEl.textContent = developerProfile.name;
+        if (devBioEl) devBioEl.textContent = developerProfile.bio;
+        // Ganti placeholder hanya jika path foto sudah diubah
+        if (devPhotoEl && developerProfile.photoUrl !== "path/ke/foto/anda.jpg") {
+           devPhotoEl.src = developerProfile.photoUrl;
+        }
+    }
+    
+    // --- EVENT LISTENERS ---
+    studentNameInput.addEventListener('input', validateInputs);
+    studentClassSelect.addEventListener('change', validateInputs);
+    materialSelect.addEventListener('change', validateInputs);
+    startQuizBtn.addEventListener('click', startQuiz);
+    submitQuizBtn.addEventListener('click', submitQuiz);
+    viewOnlineHistoryBtn.addEventListener('click', viewOnlineHistory);
+    downloadOnlineHistoryBtn.addEventListener('click', downloadOnlineHistory);
+    downloadCertificateBtn.addEventListener('click', downloadCertificate);
+    backToWelcomeBtn.addEventListener('click', () => showView('welcome'));
+    backToHomeBtn.addEventListener('click', resetWelcomeForm);
+        
+        
+        
+        // --- INISIALISASI ---
+    populateMaterials();
+    loadDeveloperProfile(); // Panggil fungsi profil di sini
+    showView('welcome');
+    });
+    </script>
+</body>
+</html>
