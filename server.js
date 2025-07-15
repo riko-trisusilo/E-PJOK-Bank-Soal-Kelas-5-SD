@@ -70,6 +70,18 @@ app.get('/api/history', (req, res) => {
     });
 });
 
+// 3. Endpoint untuk RESET riwayat (hanya untuk admin)
+app.delete('/api/history/reset', (req, res) => {
+    db.run(`DELETE FROM history`, [], function (err) {
+        if (err) {
+            console.error("❌ Gagal mereset riwayat:", err.message);
+            return res.status(500).json({ error: 'Gagal mereset riwayat.' });
+        }
+        res.json({ message: 'Riwayat berhasil direset.' });
+    });
+});
+
+
 // Menjalankan server
 app.listen(port, () => {
     console.log(`🚀 Server berjalan di http://localhost:${port}`);

@@ -88,6 +88,7 @@
              <div class="flex justify-center gap-3 mb-4">
                  <button id="download-online-history-btn" class="btn btn-secondary">💾 Unduh (Excel)</button>
                  <button id="back-to-welcome-btn" class="btn btn-neutral">⬅️ Kembali</button>
+                 <button id="reset-history-btn" class="btn btn-danger">🗑️ Reset Riwayat</button>
              </div>
              <div class="overflow-x-auto">
                  <table class="min-w-full bg-white border text-sm">
@@ -776,6 +777,30 @@
                 ]
             }
         };
+
+
+        const resetHistoryBtn = document.getElementById('reset-history-btn');
+
+resetHistoryBtn.addEventListener('click', () => {
+    const password = prompt("Masukkan password admin untuk mereset riwayat:");
+    if (password === 'Riko12345') {
+        if (confirm("Yakin ingin menghapus semua riwayat? Tindakan ini tidak dapat dibatalkan.")) {
+            fetch(`${API_URL}/api/history/reset`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    loadOnlineHistory(); // Refresh data setelah reset
+                })
+                .catch(err => {
+                    alert('❌ Gagal mereset riwayat.');
+                    console.error(err);
+                });
+        }
+    } else {
+        alert("❌ Password salah. Akses ditolak.");
+    }
+});
+
 
         // --- FUNGSI-FUNGSI APLIKASI ---
         
